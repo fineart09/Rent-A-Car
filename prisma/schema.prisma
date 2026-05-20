@@ -1,0 +1,369 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ========================================================
+// 1. กลุ่มตารางพื้นฐานที่ไม่มีเงื่อนไขความสัมพันธ์คีย์นอก (Master Data)
+// ========================================================
+
+model Images {
+  images_id     String   @id @default(uuid()) @db.Uuid
+  images_key    String   @db.VarChar(255)
+  images_url    String   @db.VarChar(500)
+  images_name   String   @db.VarChar(255)
+  images_size   BigInt
+  images_remark String?  @db.VarChar(500) // ประเภทไฟล์ เช่น image/jpeg, image/png
+  created_date  DateTime @default(now()) @db.Timestamptz
+  created_by    String   @db.Uuid
+  updated_date  DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by    String   @db.Uuid
+  is_deleted    Boolean  @default(false)
+
+  // ความสัมพันธ์ย้อนกลับ (Prisma Relations)
+  users             User[]
+  drivers_card      Driver[]         @relation("DriverCardImage")
+  drivers_license   Driver[]         @relation("DriverLicenseImage")
+  map_cars_images   MapCarsImages[]
+  booking_payments  Booking[]        @relation("BookingPayment")
+  booking_health_01 Booking[]        @relation("BookingHealth01")
+  booking_health_02 Booking[]        @relation("BookingHealth02")
+
+  @@index([is_deleted])
+  @@map("images")
+}
+
+model VehicleType {
+  vehicle_type_id     String   @id @default(uuid()) @db.Uuid
+  vehicle_type_name   String   @db.VarChar(100)
+  vehicle_type_desc   String?  @db.VarChar(255)
+  vehicle_type_remark String?  @db.VarChar(500)
+  created_date        DateTime @default(now()) @db.Timestamptz
+  created_by          String   @db.Uuid
+  updated_date        DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by          String   @db.Uuid
+  is_deleted          Boolean  @default(false)
+
+  cars                Cars[]
+
+  @@index([is_deleted])
+  @@map("vehicle_type")
+}
+
+model Brand {
+  brand_id     String   @id @default(uuid()) @db.Uuid
+  brand_name   String   @unique @db.VarChar(100)
+  brand_desc   String?  @db.VarChar(255)
+  brand_remark String?  @db.VarChar(500)
+  created_date DateTime @default(now()) @db.Timestamptz
+  created_by   String   @db.Uuid
+  updated_date DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by   String   @db.Uuid
+  is_deleted   Boolean  @default(false)
+
+  cars         Cars[]
+
+  @@index([is_deleted])
+  @@map("brand")
+}
+
+model Roles {
+  role_id      String   @id @default(uuid()) @db.Uuid
+  role_name    String   @db.VarChar(100)
+  role_code    String   @unique @db.VarChar(50) // รหัส เช่น ADMIN, MANAGER
+  role_desc    String?  @db.VarChar(255)
+  role_remark  String?  @db.VarChar(500)
+  is_active    Boolean  @default(true)
+  created_date DateTime @default(now()) @db.Timestamptz
+  created_by   String   @db.Uuid
+  updated_date DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by   String   @db.Uuid
+  is_deleted   Boolean  @default(false)
+
+  map_user_roles            MapUserRoles[]
+  map_role_menu_permissions MapRoleMenuPermissions[]
+
+  @@index([is_deleted])
+  @@map("roles")
+}
+
+model Permission {
+  permission_id     String   @id @default(uuid()) @db.Uuid
+  permission_name   String   @db.VarChar(100)
+  permission_code   String   @unique @db.VarChar(50) // รหัสเช่น cars.view
+  permission_desc   String?  @db.VarChar(255)
+  permission_remark String?  @db.VarChar(500)
+  created_date      DateTime @default(now()) @db.Timestamptz
+  created_by        String   @db.Uuid
+  updated_date      DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by        String   @db.Uuid
+  is_deleted        Boolean  @default(false)
+
+  map_role_menu_permissions MapRoleMenuPermissions[]
+
+  @@index([is_deleted])
+  @@map("permission")
+}
+
+model Products {
+  products_id     String   @id @default(uuid()) @db.Uuid
+  products_name   String   @db.VarChar(255)
+  products_desc   String?  @db.VarChar(255)
+  products_remark String?  @db.VarChar(500)
+  products_price  Decimal  @db.Decimal(12, 2)
+  date_start      DateTime @db.Timestamptz
+  date_end        DateTime @db.Timestamptz
+  date_count      Int      @default(0)
+  is_active       Boolean  @default(true)
+  created_date    DateTime @default(now()) @db.Timestamptz
+  created_by      String   @db.Uuid
+  updated_date    DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by      String   @db.Uuid
+  is_deleted      Boolean  @default(false)
+
+  bookings        Booking[]
+
+  @@index([is_deleted])
+  @@map("products")
+}
+
+// ========================================================
+// 2. กลุ่มตารางข้อมูลหลักที่ผูกความสัมพันธ์กับตารางอื่น (Transactional & Profiles)
+// ========================================================
+
+model Menu {
+  menu_id             String   @id @default(uuid()) @db.Uuid
+  menu_key            String   @unique @db.VarChar(100)
+  menu_title          String   @db.VarChar(150)
+  menu_desc           String?  @db.VarChar(255)
+  menu_path           String?  @db.VarChar(255)
+  menu_parent_id      String?  @db.Uuid
+  menu_sequence       Int      @default(0)
+  menu_remark         String?  @db.VarChar(500)
+  required_permission String?  @db.VarChar(100)
+  is_active           Boolean  @default(true)
+  is_external         Boolean  @default(false)
+  created_date        DateTime @default(now()) @db.Timestamptz
+  created_by          String   @db.Uuid
+  updated_date        DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by          String   @db.Uuid
+  is_deleted          Boolean  @default(false)
+
+  // ความสัมพันธ์แบบวนในตัวเอง (Self-Reference Relation สำหรับเมนูย่อย)
+  parent_menu              Menu?                    @relation("MenuToMenu", fields: [menu_parent_id], references: [menu_id])
+  child_menus              Menu[]                   @relation("MenuToMenu")
+  map_role_menu_permissions MapRoleMenuPermissions[]
+
+  @@index([is_deleted])
+  @@map("menu")
+}
+
+model User {
+  user_id              String   @id @default(uuid()) @db.Uuid
+  user_full_name       String   @db.VarChar(150)
+  user_phone           String   @unique @db.VarChar(20)
+  user_card_image_id   String?  @db.Uuid
+  user_report_download Int      @default(0)
+  user_remark          String?  @db.VarChar(500)
+  created_date         DateTime @default(now()) @db.Timestamptz
+  created_by           String   @db.Uuid
+  updated_date         DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by           String   @db.Uuid
+  is_deleted           Boolean  @default(false)
+
+  card_image     Images?        @relation(fields: [user_card_image_id], references: [images_id])
+  map_user_roles MapUserRoles[]
+  bookings       Booking[]
+
+  @@index([is_deleted])
+  @@map("user") // เปลี่ยนชื่อตารางเพื่อป้องกันปัญหาคำสงวน (Reserved word) ในระบบ PostgreSQL
+}
+
+model Driver {
+  driver_id                String   @id @default(uuid()) @db.Uuid
+  driver_full_name         String   @db.VarChar(150)
+  driver_phone             String   @unique @db.VarChar(20)
+  driver_card_images_id    String?  @db.Uuid
+  driver_license_images_id String?  @db.Uuid
+  driver_remark            String?  @db.VarChar(500)
+  created_date             DateTime @default(now()) @db.Timestamptz
+  created_by               String   @db.Uuid
+  updated_date             DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by               String   @db.Uuid
+  is_deleted               Boolean  @default(false)
+
+  card_image    Images?   @relation("DriverCardImage", fields: [driver_card_images_id], references: [images_id])
+  license_image Images?   @relation("DriverLicenseImage", fields: [driver_license_images_id], references: [images_id])
+  bookings      Booking[]
+
+  @@index([is_deleted])
+  @@map("driver")
+}
+
+model Cars {
+  cars_id         String   @id @default(uuid()) @db.Uuid
+  vehicle_type_id String   @db.Uuid
+  brand_id        String   @db.Uuid
+  cars_mileage    Decimal  @default(0) @db.Decimal(12, 2)
+  cars_model      String   @db.VarChar(100)
+  cars_years      String   @db.VarChar(4)
+  cars_color      String   @db.VarChar(50)
+  cars_license    String   @unique @db.VarChar(20)
+  cars_status     String   @default("Available") @db.VarChar(50) // Available, Booked, Maintenance...
+  cars_remark     String?  @db.VarChar(500)
+  created_date    DateTime @default(now()) @db.Timestamptz
+  created_by      String   @db.Uuid
+  updated_date    DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by      String   @db.Uuid
+  is_deleted      Boolean  @default(false)
+
+  vehicle_type    VehicleType     @relation(fields: [vehicle_type_id], references: [vehicle_type_id])
+  brand           Brand           @relation(fields: [brand_id], references: [brand_id])
+  map_cars_images MapCarsImages[]
+  bookings        Booking[]
+  maintenances    Maintenances[]
+
+  @@index([is_deleted])
+  @@map("cars")
+}
+
+model Booking {
+  booking_id                        String   @id @default(uuid()) @db.Uuid
+  products_id                       String   @db.Uuid
+  cars_id                           String   @db.Uuid
+  user_id                           String   @db.Uuid
+  driver_id                         String?  @db.Uuid
+  booking_payment_images_id         String?  @db.Uuid
+  booking_health_check_01_images_id String?  @db.Uuid
+  booking_health_check_02_images_id String?  @db.Uuid
+  date_start                        DateTime @db.Timestamptz
+  date_end                          DateTime @db.Timestamptz
+  date_count                        Int      @default(0)
+  price                             Decimal  @default(0) @db.Decimal(12, 2)
+  daily_rate                        Decimal  @default(0) @db.Decimal(12, 2)
+  discount_amount                   Decimal  @default(0) @db.Decimal(12, 2)
+  tax_amount                        Decimal  @default(0) @db.Decimal(12, 2)
+  net_amount                        Decimal  @default(0) @db.Decimal(12, 2)
+  booking_status                    String   @default("Pending") @db.VarChar(50) // Pending, Confirmed...
+  booking_remark                    String?  @db.VarChar(500)
+  created_date                      DateTime @default(now()) @db.Timestamptz
+  created_by                        String   @db.Uuid
+  updated_date                      DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by                        String   @db.Uuid
+  is_deleted                        Boolean  @default(false)
+
+  product        Products   @relation(fields: [products_id], references: [products_id])
+  car            Cars       @relation(fields: [cars_id], references: [cars_id])
+  user           User       @relation(fields: [user_id], references: [user_id])
+  driver         Driver?    @relation(fields: [driver_id], references: [driver_id])
+  payment_image  Images?    @relation("BookingPayment", fields: [booking_payment_images_id], references: [images_id])
+  health_01_img  Images?    @relation("BookingHealth01", fields: [booking_health_check_01_images_id], references: [images_id])
+  health_02_img  Images?    @relation("BookingHealth02", fields: [booking_health_check_02_images_id], references: [images_id])
+  payments       Payments[]
+
+  @@index([is_deleted])
+  @@map("booking")
+}
+
+model Payments {
+  payments_id    String   @id @default(uuid()) @db.Uuid
+  booking_id     String   @db.Uuid
+  payment_date   DateTime @default(now()) @db.Timestamptz
+  amount         Decimal  @db.Decimal(12, 2)
+  payment_method String   @db.VarChar(50) // Cash, Credit Card...
+  payment_status String   @default("Pending") @db.VarChar(50) // Pending, Paid...
+  created_date   DateTime @default(now()) @db.Timestamptz
+  created_by     String   @db.Uuid
+  updated_date   DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by     String   @db.Uuid
+  is_deleted     Boolean  @default(false)
+
+  booking Booking @relation(fields: [booking_id], references: [booking_id])
+
+  @@index([is_deleted])
+  @@map("payments")
+}
+
+model Maintenances {
+  maintenances_id   String    @id @default(uuid()) @db.Uuid
+  cars_id           String    @db.Uuid
+  maintenances_name String    @db.VarChar(255)
+  maintenances_desc String?   @db.VarChar(255)
+  maintenances_remark String? @db.VarChar(500)
+  maintenances_type String?   @db.VarChar(100) // Maintenance, Tax, Insurance
+  maintenances_staus String   @default("Pending") @db.VarChar(50)
+  mileage           Int       @default(0)
+  mileage_target    Int       @default(0)
+  mileage_alert     Int       @default(0)
+  date_alert        DateTime? @db.Timestamptz
+  date_start        DateTime  @db.Timestamptz
+  date_end          DateTime  @db.Timestamptz
+  date_count        Int       @default(0)
+  created_date      DateTime  @default(now()) @db.Timestamptz
+  created_by        String    @db.Uuid
+  updated_date      DateTime  @default(now()) @updatedAt @db.Timestamptz
+  updated_by        String    @db.Uuid
+
+  car Cars @relation(fields: [cars_id], references: [cars_id])
+
+  @@map("maintenances")
+}
+
+// ========================================================
+// 3. กลุ่มตาราง Mapping ความสัมพันธ์แบบ Many-to-Many
+// ========================================================
+
+model MapCarsImages {
+  map_cars_images_id String   @id @default(uuid()) @db.Uuid
+  cars_id            String   @db.Uuid
+  images_id          String   @db.Uuid
+  cars_images_type   String?  @db.VarChar(150) // FRONT, SIDE, INTERIOR, BACK
+  cars_images_numb   Int      @default(0)
+  created_date       DateTime @default(now()) @db.Timestamptz
+  created_by         String   @db.Uuid
+
+  car   Cars   @relation(fields: [cars_id], references: [cars_id], onDelete: Cascade)
+  image Images @relation(fields: [images_id], references: [images_id], onDelete: Cascade)
+
+  @@map("map_cars_images")
+}
+
+model MapUserRoles {
+  map_user_role_id String   @id @default(uuid()) @db.Uuid
+  user_id          String   @db.Uuid
+  role_id          String   @db.Uuid
+  created_date     DateTime @default(now()) @db.Timestamptz
+  created_by       String   @db.Uuid
+  updated_date     DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by       String   @db.Uuid
+  is_deleted       Boolean  @default(false)
+
+  user User  @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  role Roles @relation(fields: [role_id], references: [role_id], onDelete: Cascade)
+
+  @@index([is_deleted])
+  @@map("map_user_roles")
+}
+
+model MapRoleMenuPermissions {
+  map_rmp_id   String   @id @default(uuid()) @db.Uuid
+  role_id      String   @db.Uuid
+  menu_id      String   @db.Uuid
+  permission_id String  @db.Uuid
+  created_date DateTime @default(now()) @db.Timestamptz
+  created_by   String   @db.Uuid
+  updated_date DateTime @default(now()) @updatedAt @db.Timestamptz
+  updated_by   String   @db.Uuid
+  is_deleted   Boolean  @default(false)
+
+  role       Roles      @relation(fields: [role_id], references: [role_id], onDelete: Cascade)
+  menu       Menu       @relation(fields: [menu_id], references: [menu_id], onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [permission_id], onDelete: Cascade)
+
+  @@index([is_deleted])
+  @@map("map_role_menu_permissions")
+}
