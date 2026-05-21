@@ -1,80 +1,145 @@
-import { PrismaClient } from '@prisma/client'
+import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+
+const SYSTEM_USER_ID = '00000000-0000-0000-0000-000000000000';
+
+function hashPassword(password: string) {
+  const salt = randomBytes(8).toString('hex');
+  const hash = scryptSync(password, salt, 32).toString('hex');
+  return `scrypt:${salt}:${hash}`;
+}
+
+function isScryptHash(value: string | null | undefined) {
+  if (!value) return false;
+  const [algorithm, salt, hash] = value.split(':');
+  return algorithm === 'scrypt' && Boolean(salt) && Boolean(hash);
+}
+
+function verifyPassword(password: string, storedHash: string) {
+  const [algorithm, salt, hash] = storedHash.split(':');
+  if (algorithm !== 'scrypt' || !salt || !hash) return false;
+
+  const hashBuffer = Buffer.from(hash, 'hex');
+  const candidateBuffer = scryptSync(password, salt, hashBuffer.length);
+  return (
+    hashBuffer.length === candidateBuffer.length && timingSafeEqual(hashBuffer, candidateBuffer)
+  );
+}
 
 async function main() {
-  // Roles
-  const roles = ['ADMIN', 'MANAGER', 'AGENT', 'VIEWER']
-  for (const name of roles) {
+  const roleDefinitions = [
+    { code: 'ADMIN', name: 'Admin', remark: 'Full system access' },
+    { code: 'MANAGER', name: 'Manager', remark: 'Manage operations and reports' },
+    { code: 'AGENT', name: 'Agent', remark: 'Manage bookings and customer workflows' },
+    { code: 'VIEWER', name: 'Viewer', remark: 'Read-only system access' },
+  ];
+
+  for (const role of roleDefinitions) {
     await prisma.role.upsert({
-      where: { name },
-      update: {},
-      create: { name, description: `${name} role` }
-    })
+      where: { code: role.code },
+      update: {
+        name: role.name,
+        remark: role.remark,
+        updatedBy: SYSTEM_USER_ID,
+      },
+      create: {
+        ...role,
+        createdBy: SYSTEM_USER_ID,
+        updatedBy: SYSTEM_USER_ID,
+      },
+    });
   }
 
-  // Permissions (simple examples)
   const permissions = [
-    { action: 'read', resource: 'cars' },
-    { action: 'write', resource: 'cars' },
-    { action: 'read', resource: 'bookings' },
-    { action: 'write', resource: 'bookings' },
-    { action: 'manage', resource: 'users' }
-  ]
+    { code: 'cars.view', name: 'View cars', remark: 'Read car inventory' },
+    { code: 'cars.manage', name: 'Manage cars', remark: 'Create and update car inventory' },
+    { code: 'bookings.view', name: 'View bookings', remark: 'Read bookings' },
+    { code: 'bookings.manage', name: 'Manage bookings', remark: 'Create and update bookings' },
+    { code: 'payments.view', name: 'View payments', remark: 'Read payment records' },
+    { code: 'users.manage', name: 'Manage users', remark: 'Create and update users and roles' },
+  ];
 
-  for (const p of permissions) {
+  for (const permission of permissions) {
     await prisma.permission.upsert({
-      where: { action_resource: { action: p.action, resource: p.resource } as any },
-      update: {},
-      create: { action: p.action, resource: p.resource }
-    })
+      where: { code: permission.code },
+      update: {
+        name: permission.name,
+        remark: permission.remark,
+        updatedBy: SYSTEM_USER_ID,
+      },
+      create: {
+        ...permission,
+        createdBy: SYSTEM_USER_ID,
+        updatedBy: SYSTEM_USER_ID,
+      },
+    });
   }
 
-  // Attach all permissions to ADMIN role
-  const adminRole = await prisma.role.findUnique({ where: { name: 'ADMIN' } })
-  if (adminRole) {
-    for (const perm of permissions) {
-      const permission = await prisma.permission.findUnique({ where: { action_resource: { action: perm.action, resource: perm.resource } as any }})
-      if (permission) {
-        await prisma.rolePermission.upsert({
-          where: { roleId_permissionId: { roleId: adminRole.id, permissionId: permission.id } as any },
-          update: {},
-          create: { roleId: adminRole.id, permissionId: permission.id }
-        })
-      }
-    }
-  }
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com';
+  const adminUserName = process.env.SEED_ADMIN_USERNAME ?? 'admin';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? 'changeme';
+  const adminFirstName = process.env.SEED_ADMIN_FIRST_NAME ?? 'Admin';
+  const adminLastName = process.env.SEED_ADMIN_LAST_NAME ?? 'User';
+  const adminPhone = process.env.SEED_ADMIN_PHONE ?? '0000000000';
 
-  // Create admin user
-  const adminEmail = 'admin@example.com'
+  const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
+  const shouldUpdatePassword =
+    !existingAdmin?.hashedPassword ||
+    !isScryptHash(existingAdmin.hashedPassword) ||
+    verifyPassword('changeme', existingAdmin.hashedPassword);
+
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
+    update: {
+      userName: adminUserName,
+      firstName: adminFirstName,
+      lastName: adminLastName,
+      phone: adminPhone,
+      hashedPassword: shouldUpdatePassword
+        ? hashPassword(adminPassword)
+        : existingAdmin.hashedPassword,
+      updatedBy: SYSTEM_USER_ID,
+    },
     create: {
       email: adminEmail,
-      name: 'Admin',
-      // Replace this with a secure hashed password in production
-      hashedPassword: 'changeme',
-    }
-  })
+      userName: adminUserName,
+      firstName: adminFirstName,
+      lastName: adminLastName,
+      phone: adminPhone,
+      hashedPassword: hashPassword(adminPassword),
+      createdBy: SYSTEM_USER_ID,
+      updatedBy: SYSTEM_USER_ID,
+    },
+  });
 
-  // Grant admin role to user
+  const adminRole = await prisma.role.findUnique({ where: { code: 'ADMIN' } });
+
   if (adminRole) {
-    await prisma.userRole.upsert({
-      where: { userId_roleId: { userId: admin.id, roleId: adminRole.id } as any },
-      update: {},
-      create: { userId: admin.id, roleId: adminRole.id }
-    })
+    const existingUserRole = await prisma.userRole.findFirst({
+      where: { userId: admin.id, roleId: adminRole.id },
+    });
+
+    if (!existingUserRole) {
+      await prisma.userRole.create({
+        data: {
+          userId: admin.id,
+          roleId: adminRole.id,
+          createdBy: SYSTEM_USER_ID,
+        },
+      });
+    }
   }
 
-  console.log('Seed finished')
+  console.log(`Seed finished. Admin: ${adminEmail}`);
 }
 
 main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
