@@ -1,4 +1,4 @@
-import { auth } from '../../app/api/auth/[...nextauth]/route';
+import { auth } from './auth';
 import prisma from './prisma';
 
 export async function getSessionAndRoles(req: any, res: any) {
