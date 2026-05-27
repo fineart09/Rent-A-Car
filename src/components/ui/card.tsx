@@ -20,6 +20,14 @@ export function CardHeader({ children, className = '', ...props }: CardProps) {
   )
 }
 
+export function CardFooter({ children, className = '', ...props }: CardProps) {
+  return (
+    <div className={`px-6 py-4 border-t dark:border-slate-700 ${className}`} {...props}>
+      {children}
+    </div>
+  )
+}
+
 export function CardTitle({ children, className = '', ...props }: CardProps) {
   return (
     <h3 className={`text-lg font-semibold ${className}`} {...props}>
