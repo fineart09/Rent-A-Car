@@ -1,167 +1,225 @@
-import React from 'react'
-import prisma from '@/lib/prisma'
 import Image from 'next/image'
-import { Calendar, MapPin, DollarSign, Search } from 'lucide-react'
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
+import Link from 'next/link'
+import { ArrowRight, Calendar, Car, Gauge, Palette, Search } from 'lucide-react'
+import prisma from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import Input from '@/components/ui/input'
+import Select from '@/components/ui/select'
+import {
+  formatCompactNumber,
+  getStatusBadgeClass,
+  getStatusLabel,
+  toNumber,
+} from '@/lib/ui-format'
 
 export const dynamic = 'force-dynamic'
 
-function statusColor(status?: string) {
-  const s = (status || '').toLowerCase()
-  if (s.includes('available')) return 'bg-green-100 text-green-700'
-  if (s.includes('maintenance')) return 'bg-yellow-100 text-yellow-700'
-  if (s.includes('book') || s.includes('reserved')) return 'bg-red-100 text-red-700'
-  return 'bg-slate-100 text-slate-700'
-}
+const carStatuses = ['Available', 'Booked', 'Maintenance', 'Unavailable', 'Reserved'] as const
 
 type CarsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
+function getFirstImage(
+  images: Array<{ number: number; image: { url: string; name: string } }>
+) {
+  return [...images].sort((a, b) => a.number - b.number)[0]?.image
+}
+
 export default async function CarsPage({ searchParams }: CarsPageProps) {
   const params = (await searchParams) ?? {}
   const q = typeof params.q === 'string' ? params.q.trim() : ''
-  const status = typeof params.status === 'string' ? params.status : ''
-  const brand = typeof params.brand === 'string' ? params.brand : ''
-  const vehicle_type = typeof params.vehicle_type === 'string' ? params.vehicle_type : ''
-  const min_price = typeof params.min_price === 'string' && params.min_price !== '' ? Number(params.min_price) : undefined
-  const max_price = typeof params.max_price === 'string' && params.max_price !== '' ? Number(params.max_price) : undefined
-  const sort = typeof params.sort === 'string' ? params.sort : 'price_asc'
+  const statusParam = typeof params.status === 'string' ? params.status : ''
+  const status = carStatuses.includes(statusParam as (typeof carStatuses)[number]) ? statusParam : ''
+  const brand = typeof params.brand === 'string' ? params.brand.trim() : ''
+  const vehicleType = typeof params.vehicleType === 'string' ? params.vehicleType.trim() : ''
+  const sort = typeof params.sort === 'string' ? params.sort : 'newest'
 
-  const where: any = {}
+  const where: any = { isDeleted: false }
 
   if (q) {
     where.OR = [
-      { car_name: { contains: q, mode: 'insensitive' } },
-      { brand: { contains: q, mode: 'insensitive' } },
-      { vehicle_type: { contains: q, mode: 'insensitive' } },
+      { model: { contains: q, mode: 'insensitive' } },
+      { license: { contains: q, mode: 'insensitive' } },
+      { color: { contains: q, mode: 'insensitive' } },
+      { brand: { name: { contains: q, mode: 'insensitive' } } },
+      { vehicleType: { name: { contains: q, mode: 'insensitive' } } },
     ]
   }
 
-  if (status) where.car_status = status
-  if (brand) where.brand = brand
-  if (vehicle_type) where.vehicle_type = vehicle_type
+  if (status) where.status = status
+  if (brand) where.brand = { name: { contains: brand, mode: 'insensitive' } }
+  if (vehicleType) where.vehicleType = { name: { contains: vehicleType, mode: 'insensitive' } }
 
-  if (min_price !== undefined || max_price !== undefined) {
-    where.price_per_day = {}
-    if (min_price !== undefined) where.price_per_day.gte = min_price
-    if (max_price !== undefined) where.price_per_day.lte = max_price
-  }
+  const orderBy: any =
+    sort === 'model'
+      ? { model: 'asc' }
+      : sort === 'year'
+        ? { year: 'desc' }
+        : sort === 'mileage'
+          ? { mileage: 'asc' }
+          : { createdAt: 'desc' }
 
-  const orderBy: any = {}
-  if (sort === 'price_asc') orderBy.price_per_day = 'asc'
-  else if (sort === 'price_desc') orderBy.price_per_day = 'desc'
-  else if (sort === 'newest') orderBy.car_year = 'desc'
-
-  const cars = await prisma.car.findMany({ where, orderBy: Object.keys(orderBy).length ? orderBy : undefined, take: 48 })
+  const [cars, totalCars, availableCars] = await Promise.all([
+    prisma.car.findMany({
+      where,
+      orderBy,
+      take: 48,
+      include: {
+        brand: true,
+        vehicleType: true,
+        images: {
+          include: { image: true },
+          orderBy: { number: 'asc' },
+        },
+      },
+    }),
+    prisma.car.count({ where: { isDeleted: false } }),
+    prisma.car.count({ where: { isDeleted: false, status: 'Available' } }),
+  ])
 
   return (
-    <div className="p-6">
-      <header className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold">Vehicles</h1>
-        <p className="mt-1 text-sm text-slate-600">Filter, search and explore our fleet. Mobile-first, responsive and accessible.</p>
+    <div className="space-y-8">
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-normal text-slate-950">จัดการรถ</h1>
+          <p className="mt-3 text-lg font-bold text-slate-500">ค้นหา ตรวจสอบสถานะ และจัดการข้อมูลรถเช่า</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:min-w-72">
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm shadow-slate-200/60">
+            <div className="text-sm font-bold text-slate-500">รถทั้งหมด</div>
+            <div className="mt-2 text-3xl font-extrabold text-slate-950">{formatCompactNumber(totalCars)}</div>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm shadow-slate-200/60">
+            <div className="text-sm font-bold text-slate-500">พร้อมให้เช่า</div>
+            <div className="mt-2 text-3xl font-extrabold text-emerald-600">
+              {formatCompactNumber(availableCars)}
+            </div>
+          </div>
+        </div>
       </header>
 
-      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <form method="get" action="/cars" className="flex-1 flex items-center gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input name="q" defaultValue={q} placeholder="Search by model, brand or type" className="pl-10 pr-3 py-2 rounded-md border border-slate-200 w-full focus-visible:ring-2 focus-visible:ring-sky-400" />
-          </div>
-
-          <select name="status" defaultValue={status} className="hidden sm:inline-block rounded-md border border-slate-200 px-3 py-2">
-            <option value="">All status</option>
-            <option value="Available">Available</option>
-            <option value="Maintenance">Maintenance</option>
-            <option value="Booked">Booked</option>
-          </select>
-
-          <select name="sort" defaultValue={sort} className="rounded-md border border-slate-200 px-3 py-2">
-            <option value="price_asc">Price: Low to high</option>
-            <option value="price_desc">Price: High to low</option>
-            <option value="newest">Newest</option>
-          </select>
-
-          <button type="submit" className="ml-2 inline-flex items-center gap-2 px-4 py-2 rounded-md bg-sky-600 text-white hover:bg-sky-700">Search</button>
-        </form>
-
-        <div className="flex items-center gap-2">
-          <form method="get" action="/cars" className="flex items-center gap-2">
-            <input type="hidden" name="q" value={q} />
-            <input type="number" name="min_price" placeholder="Min" defaultValue={min_price ?? ''} className="w-24 px-3 py-2 rounded-md border border-slate-200 focus-visible:ring-2 focus-visible:ring-sky-400" />
-            <input type="number" name="max_price" placeholder="Max" defaultValue={max_price ?? ''} className="w-24 px-3 py-2 rounded-md border border-slate-200 focus-visible:ring-2 focus-visible:ring-sky-400" />
-            <input type="text" name="brand" placeholder="Brand" defaultValue={brand} className="w-32 px-3 py-2 rounded-md border border-slate-200" />
-            <input type="text" name="vehicle_type" placeholder="Type" defaultValue={vehicle_type} className="w-32 px-3 py-2 rounded-md border border-slate-200" />
-            <button type="submit" className="ml-2 px-3 py-2 rounded-md bg-slate-100">Apply</button>
-          </form>
+      <form
+        method="get"
+        action="/cars"
+        className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 lg:grid-cols-[minmax(220px,1fr)_180px_160px_160px_150px_auto]"
+      >
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Input name="q" defaultValue={q} placeholder="ค้นหารถ รุ่น ทะเบียน" className="pl-10" />
         </div>
-      </div>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {cars.map((car: any) => (
-          <Card key={car.car_id} className="overflow-hidden">
-            <CardHeader className="p-0">
-              <div className="relative h-44 bg-slate-50">
-                {car.image_url ? (
-                  // eslint-disable-next-line jsx-a11y/alt-text
-                  <Image src={car.image_url} alt={car.car_name || 'vehicle'} fill style={{ objectFit: 'cover' }} />
+        <Select name="status" defaultValue={status}>
+          <option value="">ทุกสถานะ</option>
+          {carStatuses.map((carStatus) => (
+            <option key={carStatus} value={carStatus}>
+              {getStatusLabel(carStatus)}
+            </option>
+          ))}
+        </Select>
+
+        <Input name="brand" defaultValue={brand} placeholder="แบรนด์" />
+        <Input name="vehicleType" defaultValue={vehicleType} placeholder="ประเภทรถ" />
+
+        <Select name="sort" defaultValue={sort}>
+          <option value="newest">ล่าสุด</option>
+          <option value="model">เรียงตามรุ่น</option>
+          <option value="year">ปีใหม่ก่อน</option>
+          <option value="mileage">ไมล์น้อยก่อน</option>
+        </Select>
+
+        <Button type="submit" className="h-11">
+          ค้นหา
+        </Button>
+      </form>
+
+      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {cars.map((car) => {
+          const image = getFirstImage(car.images)
+
+          return (
+            <Card key={car.id} className="overflow-hidden">
+              <div className="relative h-52 bg-slate-100">
+                {image ? (
+                  <Image
+                    src={image.url}
+                    alt={image.name || `${car.brand.name} ${car.model}`}
+                    fill
+                    className="object-cover"
+                  />
                 ) : (
-                  <div className="h-full flex items-center justify-center text-slate-400">No image</div>
+                  <div className="flex h-full items-center justify-center text-slate-400">
+                    <Car className="h-12 w-12" aria-hidden="true" />
+                  </div>
                 )}
 
-                <div className="absolute top-3 left-3">
-                  <Badge className={`${statusColor(car.car_status)} text-xs`}>{car.car_status || 'Unknown'}</Badge>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <h3 className="text-sm sm:text-base font-semibold text-slate-800 truncate">{car.car_name || 'Untitled'}</h3>
-                  <div className="mt-1 text-xs text-slate-500">{car.brand || ''} • {car.vehicle_type || ''}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-slate-500">Per day</div>
-                  <div className="mt-1 text-lg font-bold text-slate-900">${Number(car.price_per_day || 0).toFixed(2)}</div>
+                <div className="absolute left-4 top-4">
+                  <Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge>
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-3 text-xs text-slate-500">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-400" />
-                  <span>{car.car_year || '—'}</span>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <h2 className="truncate text-xl font-extrabold text-slate-950">
+                      {car.brand.name} {car.model}
+                    </h2>
+                    <p className="mt-1 text-sm font-bold text-slate-500">{car.license}</p>
+                  </div>
+                  <div className="rounded-xl bg-blue-50 px-3 py-2 text-sm font-extrabold text-blue-700">
+                    {car.vehicleType.name}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-slate-400" />
-                  <span>{car.car_mileage ? `${car.car_mileage} km` : '—'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-slate-400" />
-                  <span className="text-slate-700 font-medium">${Number(car.price_per_day || 0).toFixed(0)}</span>
-                </div>
-              </div>
 
-              <div className="mt-4 text-sm text-slate-600">{car.description ? car.description.substring(0, 120) + (car.description.length > 120 ? '…' : '') : null}</div>
-            </CardContent>
+                <div className="mt-6 grid grid-cols-3 gap-3 text-sm font-bold text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                    {car.year || '-'}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Gauge className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                    {formatCompactNumber(toNumber(car.mileage))} km
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Palette className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                    {car.color || '-'}
+                  </div>
+                </div>
 
-            <CardFooter className="flex items-center gap-3">
-              <Button asChild>
-                <a href={`/cars/${car.car_id}`} className="inline-flex items-center">Details</a>
-              </Button>
-              <Button variant="outline" asChild>
-                <a href={`/bookings/new?car_id=${car.car_id}`} className="inline-flex items-center">Book</a>
-              </Button>
-              <div className="ml-auto text-xs text-slate-500">ID: {car.car_id}</div>
-            </CardFooter>
-          </Card>
-        ))}
+                {car.remark && (
+                  <p className="mt-5 line-clamp-2 text-sm font-medium leading-6 text-slate-500">
+                    {car.remark}
+                  </p>
+                )}
+
+                <div className="mt-6 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-400">ID: {car.id.slice(0, 8)}</span>
+                  <Button asChild size="sm">
+                    <Link href={`/cars/${car.id}`}>
+                      รายละเอียด
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
       </section>
 
       {cars.length === 0 && (
-        <div className="mt-8 text-center text-slate-600">No vehicles found with the current filters.</div>
+        <Card>
+          <CardContent className="py-14 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+              <Car className="h-7 w-7" aria-hidden="true" />
+            </div>
+            <h2 className="mt-5 text-xl font-extrabold text-slate-950">ไม่พบรถที่ตรงกับเงื่อนไข</h2>
+            <p className="mt-2 text-sm font-semibold text-slate-500">ลองเปลี่ยนคำค้นหาหรือตัวกรองอีกครั้ง</p>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

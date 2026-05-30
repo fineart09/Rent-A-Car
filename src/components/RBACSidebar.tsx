@@ -1,7 +1,10 @@
 "use client";
 
+import type { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { Car, LayoutDashboard, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { menuItems } from "@/lib/rbac/menus";
 
@@ -19,42 +22,73 @@ function normalizeRoles(user?: SidebarUser | null) {
   return roles.map((role) => role.toLowerCase());
 }
 
+const itemIcons: Record<string, ComponentType<{ className?: string }>> = {
+  "/dashboard": LayoutDashboard,
+  "/cars": Car,
+};
+
 export default function RBACSidebar({ user }: { user?: SidebarUser | null }) {
   const pathname = usePathname();
   const roles = normalizeRoles(user);
   const displayName = user?.name ?? user?.email ?? "Guest";
+  const roleLabel = roles[0] ? roles[0].charAt(0).toUpperCase() + roles[0].slice(1) : "User";
 
   const visibleItems = menuItems.filter(
     (item) => !item.roles?.length || item.roles.some((role) => roles.includes(role.toLowerCase()))
   );
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r bg-white dark:border-slate-800 dark:bg-slate-950">
-      <div className="border-b p-4 dark:border-slate-800">
-        <div className="font-semibold">Rent Car App</div>
-        <div className="mt-1 truncate text-sm text-slate-500">{displayName}</div>
+    <aside className="flex h-full w-72 flex-col bg-blue-800 text-white shadow-xl shadow-blue-950/20">
+      <div className="border-b border-white/15 px-6 py-8">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+            <Car className="h-7 w-7" aria-hidden="true" />
+          </div>
+          <div>
+            <div className="text-xl font-bold leading-tight">RentCar Admin</div>
+            <div className="mt-0.5 text-sm font-semibold text-blue-100">ระบบจัดการเช่ารถ</div>
+          </div>
+        </div>
       </div>
 
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="flex-1 space-y-3 px-4 py-6">
         {visibleItems.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const Icon = itemIcons[item.href] ?? LayoutDashboard;
 
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "block rounded-md px-3 py-2 text-sm transition-colors",
+                "flex items-center gap-4 rounded-xl px-4 py-4 text-base font-bold transition-colors",
                 active
-                  ? "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-200"
-                  : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-900"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-950/15"
+                  : "text-blue-100 hover:bg-white/10 hover:text-white"
               )}
             >
+              <Icon className="h-5 w-5" aria-hidden="true" />
               {item.title}
             </Link>
           );
         })}
       </nav>
+
+      <div className="border-t border-white/15 px-6 py-7">
+        <div className="mb-7">
+          <div className="truncate text-base font-bold">{displayName}</div>
+          <div className="mt-1 truncate text-sm font-medium text-blue-100">{user?.email ?? roleLabel}</div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: "/signin" })}
+          className="flex w-full items-center gap-3 rounded-xl px-1 py-2 text-left text-sm font-bold text-blue-100 transition hover:text-white"
+        >
+          <LogOut className="h-5 w-5" aria-hidden="true" />
+          ออกจากระบบ
+        </button>
+      </div>
     </aside>
   );
 }

@@ -124,8 +124,8 @@ html, body, #__next {
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: #f6f7f9;
+  color: #0f172a;
   font-family: var(--font-sans);
 }
 

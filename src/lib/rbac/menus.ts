@@ -6,7 +6,7 @@ export type MenuItem = {
 
 export const menuItems: MenuItem[] = [
   { title: "Dashboard", href: "/dashboard", roles: ["admin", "manager", "agent", "user"] },
-  { title: "Cars", href: "/cars", roles: ["admin", "manager", "agent"] },
+  { title: "จัดการรถ", href: "/cars", roles: ["admin", "manager", "agent"] },
 ];
 
 export default menuItems;

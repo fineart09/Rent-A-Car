@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react'
+import { cn } from '@/lib/utils'
 
 type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
   children: React.ReactNode
@@ -9,7 +10,10 @@ type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
 export function Badge({ className = '', children, ...props }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 ${className}`}
+      className={cn(
+        'inline-flex items-center rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700',
+        className
+      )}
       {...props}
     >
       {children}

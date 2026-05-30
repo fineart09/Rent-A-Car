@@ -8,8 +8,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Car Rental Admin",
-  description: "Admin dashboard for car rental system",
+  title: "RentCar Admin",
+  description: "ระบบจัดการเช่ารถ",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -17,7 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+      <body className="min-h-screen bg-[#f6f7f9] text-slate-950 antialiased">
         <Providers session={session}>{children}</Providers>
       </body>
     </html>
