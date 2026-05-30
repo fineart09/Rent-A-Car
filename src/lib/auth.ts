@@ -32,10 +32,13 @@ export const authConfig: NextAuthConfig = {
         const username = typeof credentials?.username === 'string' ? credentials.username : '';
         const email = typeof credentials?.email === 'string' ? credentials.email : '';
         const password = typeof credentials?.password === 'string' ? credentials.password : '';
-        if ((!username && !email) || !password) return null;
+        const identifier = username || email;
+        if (!identifier || !password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email },
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [{ userName: identifier }, { email: identifier }],
+          },
           include: { roles: { include: { role: true } } },
         });
 

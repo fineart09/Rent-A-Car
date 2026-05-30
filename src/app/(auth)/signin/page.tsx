@@ -1,92 +1,117 @@
 'use client'
 
-import { useState } from 'react'
+import { type FormEvent, useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import Input from '@/components/ui/input'
-import Label from '@/components/ui/label'
+import { Car, Loader2 } from 'lucide-react'
 
 export default function SignInPage() {
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+
+    const credential = identifier.trim()
+    if (!credential || !password) return
+
     setLoading(true)
     setError(null)
-    
-    // ใส่ redirect: false เพื่อดักจับ Error กรณีรหัสผ่านผิด
-    const res = await signIn('credentials', { 
-      email, 
-      password, 
+
+    const res = await signIn('credentials', {
+      username: credential,
+      email: credential,
+      password,
       redirect: false,
-      callbackUrl: '/' 
+      callbackUrl: '/',
     })
 
     setLoading(false)
 
     if (res?.error) {
-      setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
+      setError('ชื่อผู้ใช้หรืออีเมลหรือรหัสผ่านไม่ถูกต้อง')
     } else if (res?.url) {
       window.location.href = res.url
     }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900 p-4">
-      <Card className="w-full max-w-md shadow-md border border-slate-100 dark:border-slate-800">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-slate-900 dark:text-white">
-            Sign in
-          </CardTitle>
-          <CardDescription className="text-center text-slate-500">
-            ระบบบริหารจัดการรถเช่า (Rent Car Management)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200 text-center dark:bg-red-950/50 dark:text-red-400 dark:border-red-900">
-                {error}
-              </div>
-            )}
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Username or email</Label>
-              <Input 
-                id="email" 
-                type="text" 
-                placeholder="Username or email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)}
-                required 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)}
-                required 
-              />
-            </div>
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-slate-50 px-4 py-10">
+      <section className="w-full max-w-md rounded-2xl border border-white/80 bg-white px-8 py-9 shadow-lg shadow-slate-200/70">
+        <div className="flex flex-col items-center text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-700 text-white shadow-md shadow-blue-700/20">
+            <Car className="h-7 w-7" aria-hidden="true" strokeWidth={2.25} />
+          </div>
 
-            <Button 
-              type="submit" 
-              disabled={loading} 
-              className="w-full bg-sky-600 hover:bg-sky-700 text-white transition-colors"
+          <h1 className="mt-5 text-2xl font-bold text-slate-900">RentCar Admin</h1>
+          <p className="mt-1 text-sm font-medium text-slate-500">ระบบจัดการเช่ารถ</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <div>
+            <label
+              htmlFor="identifier"
+              className="mb-1 block text-sm font-semibold text-slate-800"
             >
-              {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+              Username or email
+            </label>
+            <input
+              id="identifier"
+              name="identifier"
+              type="text"
+              autoComplete="username"
+              placeholder="Username or email"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'signin-error' : undefined}
+              required
+              className="block w-full rounded-lg border border-transparent bg-slate-100 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-blue-600"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="mb-1 block text-sm font-semibold text-slate-800"
+            >
+              รหัสผ่าน
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="กรอกรหัสผ่าน"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'signin-error' : undefined}
+              required
+              className="block w-full rounded-lg border border-transparent bg-slate-100 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-colors focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-blue-600"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-700 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-80"
+          >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+            <span>{loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}</span>
+          </button>
+        </form>
+
+        <p
+          id="signin-error"
+          role={error ? 'alert' : undefined}
+          aria-live="polite"
+          className="mt-4 min-h-4 text-center text-xs text-slate-400"
+        >
+          {error}
+        </p>
+      </section>
+    </main>
   )
 }
