@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Input, Label, Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../src/components/ui'
+import { Input, Label, Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui'
 import { Button } from "@/components/ui/button"
 
 export default function ForgotPasswordPage() {
@@ -19,7 +19,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Reset your password</CardTitle>
-          <CardDescription>Enter the email associated with your account and we'll send reset instructions.</CardDescription>
+          <CardDescription>Enter the email associated with your account and we will send reset instructions.</CardDescription>
         </CardHeader>
         <CardContent>
           {sent ? (

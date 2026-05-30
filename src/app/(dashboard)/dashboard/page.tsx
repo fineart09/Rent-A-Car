@@ -1,9 +1,9 @@
 import React from 'react'
-import { PrismaClient } from '@prisma/client'
+import prisma from '@/lib/prisma'
 import Image from 'next/image'
 import { Calendar, MapPin, DollarSign } from 'lucide-react'
 
-const prisma = new PrismaClient()
+export const dynamic = 'force-dynamic'
 
 function statusColor(status?: string) {
   const s = (status || '').toLowerCase()

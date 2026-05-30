@@ -2,6 +2,7 @@
 node_modules/
 npm-debug.log*
 .next/
+.refactor-backup/
 out/
 .env
 .env.local

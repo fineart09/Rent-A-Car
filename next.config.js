@@ -1,7 +1,6 @@
-/** Minimal Next.js 15 config */
-module.exports = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    appDir: true
-  }
 };
+
+module.exports = nextConfig;

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import prisma from '../../../src/lib/prisma';
+import prisma from '@/lib/prisma';
+
 
 export async function GET() {
   const session = await auth();
@@ -15,9 +16,6 @@ export async function GET() {
   if (!roles.some((r) => allowed.includes(r)))
     return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
 
-  const bookings = await prisma.booking.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: { car: true, user: true, payments: true },
-  });
-  return NextResponse.json(bookings);
+  const cars = await prisma.car.findMany({ orderBy: { createdAt: 'desc' } });
+  return NextResponse.json(cars);
 }

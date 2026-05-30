@@ -1,7 +1,7 @@
 import { auth } from './auth';
 import prisma from './prisma';
 
-export async function getSessionAndRoles(req: any, res: any) {
+export async function getSessionAndRoles() {
   const session = await auth();
   if (!session?.user?.email) return { session: null, roles: [] };
   const user = await prisma.user.findUnique({

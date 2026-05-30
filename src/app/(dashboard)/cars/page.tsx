@@ -1,10 +1,12 @@
 import React from 'react'
-import prisma from '../../src/lib/prisma'
+import prisma from '@/lib/prisma'
 import Image from 'next/image'
 import { Calendar, MapPin, DollarSign, Search } from 'lucide-react'
-import { Card, CardHeader, CardContent, CardFooter } from '../../src/components/ui/card'
-import { Badge } from '../../src/components/ui/badge'
-import { Button } from '../../src/components/ui/button'
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+
+export const dynamic = 'force-dynamic'
 
 function statusColor(status?: string) {
   const s = (status || '').toLowerCase()
@@ -14,14 +16,19 @@ function statusColor(status?: string) {
   return 'bg-slate-100 text-slate-700'
 }
 
-export default async function CarsPage({ searchParams }: { searchParams?: Record<string, string | string[]> }) {
-  const q = typeof searchParams?.q === 'string' ? searchParams.q.trim() : ''
-  const status = typeof searchParams?.status === 'string' ? searchParams.status : ''
-  const brand = typeof searchParams?.brand === 'string' ? searchParams.brand : ''
-  const vehicle_type = typeof searchParams?.vehicle_type === 'string' ? searchParams.vehicle_type : ''
-  const min_price = typeof searchParams?.min_price === 'string' && searchParams.min_price !== '' ? Number(searchParams.min_price) : undefined
-  const max_price = typeof searchParams?.max_price === 'string' && searchParams.max_price !== '' ? Number(searchParams.max_price) : undefined
-  const sort = typeof searchParams?.sort === 'string' ? searchParams.sort : 'price_asc'
+type CarsPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}
+
+export default async function CarsPage({ searchParams }: CarsPageProps) {
+  const params = (await searchParams) ?? {}
+  const q = typeof params.q === 'string' ? params.q.trim() : ''
+  const status = typeof params.status === 'string' ? params.status : ''
+  const brand = typeof params.brand === 'string' ? params.brand : ''
+  const vehicle_type = typeof params.vehicle_type === 'string' ? params.vehicle_type : ''
+  const min_price = typeof params.min_price === 'string' && params.min_price !== '' ? Number(params.min_price) : undefined
+  const max_price = typeof params.max_price === 'string' && params.max_price !== '' ? Number(params.max_price) : undefined
+  const sort = typeof params.sort === 'string' ? params.sort : 'price_asc'
 
   const where: any = {}
 

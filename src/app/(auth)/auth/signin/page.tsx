@@ -55,11 +55,11 @@ export default function SignInPage() {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Username or email</Label>
               <Input 
                 id="email" 
-                type="email" 
-                placeholder="name@example.com" 
+                type="text" 
+                placeholder="Username or email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)}
                 required 

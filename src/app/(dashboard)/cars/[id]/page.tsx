@@ -1,26 +1,31 @@
 import React from 'react'
-import prisma from '../../../src/lib/prisma'
+import prisma from '@/lib/prisma'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Card, CardContent } from '../../../src/components/ui/card'
-import { Badge } from '../../../src/components/ui/badge'
-import CarGallery from '../../../src/components/CarGallery'
-import { Calendar, MapPin, DollarSign } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import CarGallery from '@/components/CarGallery'
+import { Calendar, MapPin } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
 
 interface PageProps {
-  params: Promise<{ id: string }> | { id: string }
+  params: Promise<{ id: string }>
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: PageProps) {
+  const { id } = await params
+
   const car = await prisma.car.findUnique({ 
-    where: { id: params.id, isDeleted: false },
+    where: { id, isDeleted: false },
     include: { brand: true }
   })
   if (!car) return { title: 'Vehicle not found' }
   return { title: `${car.brand.name} ${car.model} • Rent Car` }
 }
 
-export default async function CarDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default async function CarDetailPage({ params }: PageProps) {
+  const { id } = await params
 
   const car = await prisma.car.findUnique({ 
     where: { 
@@ -60,7 +65,7 @@ export default async function CarDetailPage({ params }: { params: { id: string }
   return (
     <div className="p-6">
       <div className="mb-4">
-        <a href="/cars" className="text-sm text-slate-600 hover:underline">← Back to vehicles</a>
+        <Link href="/cars" className="text-sm text-slate-600 hover:underline">← Back to vehicles</Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
