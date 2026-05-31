@@ -24,7 +24,7 @@ export default function SignInPage() {
       email: credential,
       password,
       redirect: false,
-      callbackUrl: '/',
+      callbackUrl: '/dashboard',
     })
 
     setLoading(false)

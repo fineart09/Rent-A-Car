@@ -88,7 +88,7 @@ async function main() {
 
   const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com';
   const adminUserName = process.env.SEED_ADMIN_USERNAME ?? 'admin';
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? 'changeme';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? 'admin';
   const adminFirstName = process.env.SEED_ADMIN_FIRST_NAME ?? 'Admin';
   const adminLastName = process.env.SEED_ADMIN_LAST_NAME ?? 'User';
   const adminPhone = process.env.SEED_ADMIN_PHONE ?? '0000000000';
@@ -97,7 +97,7 @@ async function main() {
   const shouldUpdatePassword =
     !existingAdmin?.hashedPassword ||
     !isScryptHash(existingAdmin.hashedPassword) ||
-    verifyPassword('changeme', existingAdmin.hashedPassword);
+    verifyPassword('admin', existingAdmin.hashedPassword);
 
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
