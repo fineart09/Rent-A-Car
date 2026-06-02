@@ -4,7 +4,7 @@ import type { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Car, LayoutDashboard, LogOut } from "lucide-react";
+import { Car, ClipboardList, CreditCard, LayoutDashboard, LogOut, Users, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { menuItems } from "@/lib/rbac/menus";
 
@@ -25,6 +25,10 @@ function normalizeRoles(user?: SidebarUser | null) {
 const itemIcons: Record<string, ComponentType<{ className?: string }>> = {
   "/dashboard": LayoutDashboard,
   "/cars": Car,
+  "/bookings": ClipboardList,
+  "/payments": CreditCard,
+  "/maintenance": Wrench,
+  "/users": Users,
 };
 
 export default function RBACSidebar({ user }: { user?: SidebarUser | null }) {

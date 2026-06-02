@@ -101,3 +101,123 @@ Let's build the Next Recommended Milestone: The New Booking Flow. Please provide
    - Collect dates and pricing calculations using our direct snake_case models.
 
 Please output the clean, optimized code for the Availability Check logic and the New Booking Form page. Inform me when you are ready to begin writing the files!
+
+
+
+-----------------------------------------------------------------------------------------------
+------ Prompt 3
+-----------------------------------------------------------------------------------------------
+We are continuing the Rent Car Admin app.
+
+Current stack:
+- Next.js 15 App Router
+- TypeScript
+- Prisma 7 + PostgreSQL
+- Auth.js / NextAuth credentials login
+- Tailwind + existing shadcn-style UI components
+- Prisma schema uses camelCase app fields with `@map/@@map` to snake_case DB columns. Do not rename DB columns and do not remove mapping attributes.
+
+Recent completed work:
+1. New Booking availability API was implemented at:
+   `src/app/api/bookings/availability/route.ts`
+
+   Behavior:
+   - Accepts `car_id` or `id`, plus `date_start` and `date_end`
+   - Requires authenticated session via `auth()`
+   - Validates payload with Zod
+   - Checks overlapping bookings with:
+     existing.dateStart <= requestedEnd AND existing.dateEnd >= requestedStart
+   - Correctly filters by `carId`
+   - Ignores deleted bookings
+   - Blocking statuses are only:
+     `Pending`, `Confirmed`, `InProgress`
+   - Non-blocking statuses:
+     `Completed`, `Cancelled`, `Rejected`
+   - Returns:
+     `{ available: boolean, conflicts: [...] }`
+
+2. New Booking draft page was implemented at:
+   `src/app/(dashboard)/bookings/new/page.tsx`
+
+   Behavior:
+   - Route is `/bookings/new`
+   - Loads cars from Prisma where `isDeleted: false`
+   - Loads products from Prisma where `isDeleted: false` and `isActive: true`
+   - Supports prefilled car ID from both `?id=` and `?car_id=`
+   - Passes serializable car/product options into the client form
+
+3. Booking form was implemented at:
+   `src/app/(dashboard)/bookings/new/NewBookingForm.tsx`
+
+   Behavior:
+   - Thai admin UI labels
+   - Select car
+   - Select product/package
+   - Select date_start/date_end
+   - Enter discount, tax, remark
+   - Calculates day count, daily rate, gross amount, discount, tax, net amount
+   - Calls `/api/bookings/availability`
+   - Shows available/conflict/error state
+   - Shows selected car summary
+   - Does not create a booking yet; this is a draft/checking flow only
+
+4. Sign-in E2E test was updated at:
+   `tests-e2e/signin.spec.ts`
+
+   Behavior:
+   - Uses `/signin`
+   - Clicks Thai button text `เข้าสู่ระบบ`
+   - Reads credentials from:
+     `E2E_USERNAME`, `E2E_PASSWORD`
+     or falls back to `SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD`
+     or `admin` / `admin`
+
+5. Docs were updated:
+   - `README.md`
+   - `ai/decision-log.md`
+   - `ai/prompt-log.md`
+
+Verification already done:
+- `npm run typecheck` passed
+
+Verification still blocked in current shell:
+- `npm run lint`
+- `npm run build`
+- `npx prisma validate`
+
+Reason:
+- Current shell is Node `v16.20.1`
+- Next.js 15 requires Node `>=18.18.0`
+- Prisma 7 requires Node `20.19+`
+- Use Node `20.19+` before running final lint/build/Prisma checks
+
+Current git status note:
+- New booking files may still be untracked:
+  - `src/app/(dashboard)/bookings/new/page.tsx`
+  - `src/app/(dashboard)/bookings/new/NewBookingForm.tsx`
+  - `src/app/api/bookings/availability/route.ts`
+- Make sure to `git add` them before committing
+
+Recommended next tasks:
+1. Switch runtime to Node `20.19+`
+2. Run:
+   - `npm run typecheck`
+   - `npm run lint`
+   - `npm run build`
+   - `npx prisma validate`
+3. If build passes, manually test:
+   - Login at `/signin`
+   - Open `/cars`
+   - Open a car detail page
+   - Click “จองรถ”
+   - Confirm `/bookings/new?id=<carId>` preselects the car
+   - Enter dates and run availability check
+4. Next feature milestone:
+   Implement actual booking creation after availability check, using a validated API route or server action.
+   Do not create booking until:
+   - selected car exists
+   - selected product exists
+   - selected date range is valid
+   - availability check passes
+   - authenticated user exists
+   - required monetary fields are validated

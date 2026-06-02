@@ -48,3 +48,30 @@ Decisions:
 Notes:
 
 - `npx prisma validate`, `npx prisma generate`, and `npm run typecheck` pass after this DDL alignment.
+
+Date: 2026-06-02
+
+Decisions:
+
+- Added the first New Booking Flow milestone as a draft workflow rather than creating bookings immediately.
+- Added `/api/bookings/availability` to check car availability by `car_id` or `id`, `date_start`, and `date_end`.
+- Availability blocks only active booking statuses: `Pending`, `Confirmed`, and `InProgress`.
+- Availability ignores terminal or inactive booking statuses: `Completed`, `Cancelled`, and `Rejected`.
+- Added `/bookings/new` to load available cars and active products from Prisma, prefill car selection from `?id=` or `?car_id=`, calculate draft totals, and call the availability API.
+- Updated the sign-in E2E test to use `/signin`, Thai button text, and env-driven credentials.
+
+Notes:
+
+- The new booking page currently verifies availability and calculates a draft summary; actual booking creation remains a future milestone.
+
+Date: 2026-06-02
+
+Decisions:
+
+- Expanded the RBAC sidebar to include the core admin modules: Dashboard, Cars, Bookings, Payments, Maintenance, and Users/RBAC.
+- Added read-only list pages for `/bookings`, `/payments`, `/maintenance`, and `/users` so every sidebar menu resolves to a real dashboard page.
+- Kept creation/editing workflows out of this menu expansion except for the existing `/bookings/new` draft flow.
+
+Notes:
+
+- Menu visibility remains role-based: agents can access cars/bookings, managers can access payments/maintenance, and users/RBAC is admin-only.

@@ -26,3 +26,22 @@ Date: 2026-05-20
 - Updated `seed.ts` for `userName`, `firstName`, `lastName`, role/permission remarks, and a shorter scrypt hash that fits `user_password VARCHAR(150)`.
 - Updated NextAuth and `/api/me` display names to compose `firstName` + `lastName`.
 - Ran verification: `npx prisma validate`, `npx prisma generate`, and `npm run typecheck`.
+
+Date: 2026-06-02
+
+- User asked to continue after Copilot's partial New Booking Flow implementation.
+- Reviewed Copilot changes and found the availability API was filtering by booking `id` instead of `carId`, active statuses included non-blocking statuses, `/bookings/new` was still a placeholder, sign-in E2E still clicked English text, and docs were not updated.
+- Fixed `/api/bookings/availability` to validate payloads, use `carId`, ignore deleted bookings, block only `Pending`, `Confirmed`, and `InProgress`, and return serializable conflict data.
+- Implemented `/bookings/new` as a real server page that loads cars/products from Prisma and supports both `?id=` and `?car_id=` prefill parameters.
+- Rebuilt `NewBookingForm` with Thai labels, price/date calculations, selected-car summary, and an availability result state.
+- Updated `tests-e2e/signin.spec.ts`, `README.md`, and `ai/decision-log.md`.
+- Ran `npm run typecheck`; lint/build/Prisma validation still require a Node runtime compatible with Next.js 15 and Prisma 7.
+
+Date: 2026-06-02
+
+- User requested completing the sidebar menus.
+- Added menu entries for Bookings, Payments, Maintenance, and Users/RBAC in `src/lib/rbac/menus.ts`.
+- Updated `RBACSidebar` with matching Lucide icons and active-state support for the new routes.
+- Added read-only dashboard pages for `/bookings`, `/payments`, `/maintenance`, and `/users`.
+- Updated `README.md` and `ai/decision-log.md`.
+- Ran verification: `npm run typecheck` passed.
