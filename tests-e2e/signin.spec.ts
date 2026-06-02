@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Sign-in flow', () => {
   test('user can sign in with username or email and see RBAC sidebar', async ({ page }) => {
-    await page.goto('/auth/signin')
+    await page.goto('/signin')
 
     // Fill identifier and password (these credentials should exist in the test DB)
     await page.fill('input[placeholder="Username or email"]', 'testuser')

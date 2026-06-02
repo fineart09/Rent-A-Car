@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   if (!token) {
-    const signInUrl = new URL('/auth/signin', req.url)
+    const signInUrl = new URL('/signin', req.url)
     return NextResponse.redirect(signInUrl)
   }
 
