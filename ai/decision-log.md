@@ -88,3 +88,15 @@ Decisions:
 Notes:
 
 - Verification passed after the schema rewrite: `npx prisma validate`, `npx prisma generate`, and `npm run typecheck`.
+
+Date: 2026-06-06
+
+Decisions:
+
+- Renamed the active dashboard menu set to match `project timeline(Menu).csv` more closely: `ระบบจัดการรถยนต์`, `ข้อมูลลูกค้า`, `ข้อมูลบริการ/โปรโมชั่น`, `บันทึกรายการเช่ารถ`, `การชำระเงิน`, and `ตั้งค่าระบบ`.
+- Added new route targets for the CSV structure: `/driver`, `/products`, `/booking`, `/setting/users`, and `/cars/maintenance`, while keeping existing routes as compatibility paths where practical.
+- Added lightweight placeholder pages for the new menu targets so every menu item resolves to a real page now.
+
+Notes:
+
+- Verification passed after the menu rename pass: `npm run typecheck`.

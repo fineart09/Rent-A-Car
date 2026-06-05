@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import Input from '@/components/ui/input'
 import Select from '@/components/ui/select'
+import CarSpeedDial from '@/components/CarSpeedDial'
 import {
   formatCompactNumber,
   getStatusBadgeClass,
@@ -221,6 +222,8 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
           </CardContent>
         </Card>
       )}
+
+      <CarSpeedDial />
     </div>
   )
 }

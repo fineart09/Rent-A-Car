@@ -34,7 +34,7 @@ export default async function BookingsPage() {
           <p className="mt-3 text-lg font-bold text-slate-500">ตรวจสอบรายการจองและสถานะการเช่ารถ</p>
         </div>
         <Button asChild>
-          <Link href="/bookings/new">
+          <Link href="/booking/new">
             <Plus className="h-4 w-4" aria-hidden="true" />
             สร้างรายการเช่า
           </Link>

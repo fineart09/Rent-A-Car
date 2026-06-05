@@ -6,11 +6,12 @@ export type MenuItem = {
 
 export const menuItems: MenuItem[] = [
   { title: "Dashboard", href: "/dashboard", roles: ["admin", "manager", "agent", "user"] },
-  { title: "จัดการรถ", href: "/cars", roles: ["admin", "manager", "agent"] },
-  { title: "รายการเช่า", href: "/bookings", roles: ["admin", "manager", "agent"] },
-  { title: "การชำระเงิน", href: "/payments", roles: ["admin", "manager"] },
-  { title: "บำรุงรักษา", href: "/maintenance", roles: ["admin", "manager"] },
-  { title: "ผู้ใช้และสิทธิ์", href: "/users", roles: ["admin"] },
+  { title: "ระบบจัดการรถยนต์", href: "/cars", roles: ["admin", "manager", "agent"] },
+  { title: "ข้อมูลลูกค้า", href: "/driver", roles: ["admin", "manager", "agent", "user"] },
+  { title: "ข้อมูลบริการ/โปรโมชั่น", href: "/products", roles: ["admin", "manager", "agent", "user"] },
+  { title: "บันทึกรายการเช่ารถ", href: "/booking", roles: ["admin", "manager", "agent", "user"] },
+  { title: "การชำระเงิน", href: "/payments", roles: ["admin", "manager", "agent", "user"] },
+  { title: "ตั้งค่าระบบ", href: "/setting/users", roles: ["admin", "manager"] },
 ];
 
 export default menuItems;

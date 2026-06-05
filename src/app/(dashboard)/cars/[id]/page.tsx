@@ -86,7 +86,7 @@ export default async function CarDetailPage({ params }: PageProps) {
             </a>
           </Button>
           <Button asChild>
-            <Link href={`/bookings/new?id=${car.id}`}>จองรถ</Link>
+            <Link href={`/booking/new?id=${car.id}`}>จองรถ</Link>
           </Button>
         </div>
       </header>
@@ -162,7 +162,7 @@ export default async function CarDetailPage({ params }: PageProps) {
 
               <div className="mt-7 grid gap-3">
                 <Button asChild>
-                  <Link href={`/bookings/new?id=${car.id}`}>สร้างรายการเช่า</Link>
+                  <Link href={`/booking/new?id=${car.id}`}>สร้างรายการเช่า</Link>
                 </Button>
                 <Button asChild variant="outline">
                   <Link href="/cars">ดูรถทั้งหมด</Link>

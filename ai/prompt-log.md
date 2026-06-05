@@ -53,3 +53,10 @@ Date: 2026-06-06
 - Added missing relations and indexes from the DDL, including `Booking.car`, booking image relations, and DDL-backed indexes.
 - Updated `ai/data-structure.md` and logged the naming decision in `ai/decision-log.md`.
 - Verification passed: `npx prisma validate`, `npx prisma generate`, and `npm run typecheck`.
+
+Date: 2026-06-06
+
+- User asked to align menu names and folder routes with `project timeline(Menu).csv`.
+- Renamed the active menu labels to match the CSV naming style and added new route targets for `/driver`, `/products`, `/booking`, `/setting/users`, and `/cars/maintenance`.
+- Added lightweight placeholder pages for each new menu target so the sidebar links resolve cleanly.
+- Cleared the generated Next.js cache and re-ran `npm run typecheck` successfully after the route restructure.
