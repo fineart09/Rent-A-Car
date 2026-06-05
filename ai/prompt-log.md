@@ -45,3 +45,11 @@ Date: 2026-06-02
 - Added read-only dashboard pages for `/bookings`, `/payments`, `/maintenance`, and `/users`.
 - Updated `README.md` and `ai/decision-log.md`.
 - Ran verification: `npm run typecheck` passed.
+
+Date: 2026-06-06
+
+- User requested `prisma/schema.prisma` be aligned to `ai/sql-ddl.sql` and converted to camelCase.
+- Rebuilt the Prisma schema to use camelCase model fields, relation names, and enums while mapping to the snake_case database tables and columns.
+- Added missing relations and indexes from the DDL, including `Booking.car`, booking image relations, and DDL-backed indexes.
+- Updated `ai/data-structure.md` and logged the naming decision in `ai/decision-log.md`.
+- Verification passed: `npx prisma validate`, `npx prisma generate`, and `npm run typecheck`.

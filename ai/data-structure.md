@@ -9,19 +9,19 @@ Core tables:
   - App model: `User`
   - App fields map to DB columns: `id -> user_id`, `userName -> user_name`, `email -> user_email`, `hashedPassword -> user_password`
   - Name fields are split: `firstName -> user_first_name`, `lastName -> user_last_name`
-  - Other mapped fields: `phone -> user_phone`, `cardImageId -> user_card_image_id`, `reportDownload -> user_report_download`
+  - Other mapped fields: `phone -> user_phone`, `cardImageId -> user_card_image_id`, `reportDownload -> user_report_download`, `remark -> user_remark`
   - Audit fields: `createdAt/createdBy/updatedAt/updatedBy`, soft-delete via `isDeleted`
 
 - roles
 
   - App model: `Role`
-  - App fields map to DB columns: `id -> role_id`, `name -> role_name`, `code -> role_code`, `remark -> role_remark`
+  - App fields map to DB columns: `id -> role_id`, `name -> role_name`, `code -> role_code`, `description -> role_desc`, `remark -> role_remark`, `isActive -> is_active`
   - Role codes are used for RBAC checks, e.g. `ADMIN`, `MANAGER`, `AGENT`, `VIEWER`
 
 - permissions
 
   - App model: `Permission`
-  - App fields map to DB columns: `id -> permission_id`, `name -> permission_name`, `code -> permission_code`, `remark -> permission_remark`
+  - App fields map to DB columns: `id -> permission_id`, `name -> permission_name`, `code -> permission_code`, `description -> permission_desc`, `remark -> permission_remark`
 
 - map_user_roles
 
@@ -32,7 +32,7 @@ Core tables:
 - menus
 
   - App model: `Menu`
-  - App fields map to DB columns: `id -> menu_id`, `key -> menu_key`, `name -> menu_name`, `icon -> menu_icon`, `path -> menu_path`, `parentId -> menu_parent_id`, `sequence -> menu_sequence`
+  - App fields map to DB columns: `id -> menu_id`, `key -> menu_key`, `title -> menu_title`, `icon -> menu_icon`, `path -> menu_path`, `parentId -> menu_parent_id`, `sequence -> menu_sequence`, `remark -> menu_remark`, `requiredPermission -> required_permission`, `isActive -> is_active`, `isExternal -> is_external`
 
 - map_role_menu_permissions
   - App model: `RoleMenuPermission`
@@ -41,39 +41,39 @@ Core tables:
 
 Fleet management:
 
-- vehicle_types (vehicle_type_id PK, name, desc)
-- brands (brands_id PK, brands_name)
+- vehicle_type (vehicle_type_id PK, vehicle_type_name, vehicle_type_desc, vehicle_type_remark)
+- brand (brand_id PK, brand_name, brand_desc, brand_remark)
 - cars
   - App model: `Car`
-  - cars_id (UUID PK), vehicle_type_id (FK), brands_id (FK), cars_model, cars_years,
-    cars_color, cars_license (unique), cars_status (`car_status_enum`), cars_mileage, is_deleted
-- drivers (driver_id PK, driver_full_name, driver_phone, driver_card_images_id, driver_license_images_id)
-- images (images_id PK, images_key, images_url, images_name, images_size, images_type)
+  - App fields map to DB columns: `id -> cars_id`, `vehicleTypeId -> vehicle_type_id`, `brandId -> brand_id`, `mileage -> cars_mileage`, `model -> cars_model`, `year -> cars_years`, `color -> cars_color`, `license -> cars_license`, `status -> cars_status`, `remark -> cars_remark`
+  - Relations: `vehicleType`, `brand`, `images`, `bookings`
+- driver (driver_id PK, driver_full_name, driver_phone, driver_card_images_id, driver_license_images_id)
+- images (images_id PK, images_key, images_url, images_name, images_size, images_type, images_remark)
 - map_cars_images (map_cars_images_id PK, cars_id FK, images_id FK, cars_images_type, cars_images_numb)
 
 Pricing & Booking:
 
-- products (products_id PK, products_name, products_price, date_start, date_end, is_active)
-- bookings
-  - booking_id (UUID PK), products_id (FK), cars_id (FK), user_id (FK), driver_id (FK), booking_payment_images_id (FK -> images),
-    booking_health_check_01_images_id (FK -> images), booking_health_check_02_images_id (FK -> images)
-    date_start, date_end, date_count, price, daily_rate, discount_amount, tax_amount, net_amount, booking_status (`booking_status_enum`)
+- products (products_id PK, products_name, products_desc, products_remark, products_price, date_start, date_end, date_count, is_active)
+- booking
+  - App model: `Booking`
+  - App fields map to DB columns: `id -> booking_id`, `productId -> products_id`, `carId -> cars_id`, `userId -> user_id`, `driverId -> driver_id`, `paymentImageId -> booking_payment_images_id`, `healthCheck01ImageId -> booking_health_check_01_images_id`, `healthCheck02ImageId -> booking_health_check_02_images_id`, `dateStart -> date_start`, `dateEnd -> date_end`, `dateReturn -> date_return`, `dateCount -> date_count`, `price -> price`, `dailyRate -> daily_rate`, `discountAmount -> discount_amount`, `taxAmount -> tax_amount`, `netAmount -> total_amount`, `remark -> booking_remark`, `status -> booking_status`
+  - Relations: `product`, `car`, `user`, `driver`, `paymentImage`, `healthCheck01Image`, `healthCheck02Image`, `payments`
 - payments
   - App model: `Payment`
-  - payments_id (UUID PK), booking_id (FK), payment_date, amount, payment_method (`payment_method_enum`), payment_status (`payment_status_enum`)
+  - App fields map to DB columns: `id -> payments_id`, `bookingId -> booking_id`, `paymentDate -> payment_date`, `amount -> amount`, `paymentMethod -> payment_method`, `paymentStatus -> payment_status`
 
 Maintenance:
 
 - maintenances
   - App model: `Maintenance`
-  - maintenances_id (UUID PK), cars_id (FK), maintenances_name, maintenances_type (`maintenance_type_enum`), maintenances_status (`maintenance_status_enum`), mileage, mileage_target, mileage_alert, date_alert, date_start, date_end, is_deleted
+  - App fields map to DB columns: `id -> maintenances_id`, `carId -> cars_id`, `name -> maintenances_name`, `description -> maintenances_desc`, `remark -> maintenances_remark`, `type -> maintenances_type`, `status -> maintenances_status`, `mileage -> mileage`, `mileageTarget -> mileage_target`, `mileageAlert -> mileage_alert`, `dateAlert -> date_alert`, `dateStart -> date_start`, `dateEnd -> date_end`, `dateCount -> date_count`
 
 Indexes & Conventions:
 
 - Use snake_case in DB, UUID PKs, soft-delete via is_deleted
 - Prisma uses camelCase fields with `@map` and `@@map` to match `sql-ddl.sql`
 - `sql-ddl.sql` is the source of truth for table/column structure
-- Important indexes in DDL: `idx_cars_deleted`, `idx_user_deleted`, `idx_booking_status`, `idx_booking_deleted`, `idx_payments_booking`
+- Important indexes in DDL: `idx_cars_status`, `idx_booking_status`, `idx_booking_dates`, `idx_payments_booking`, `idx_maintenances_alert`
 - Enums: `car_status_enum`, `booking_status_enum`, `payment_method_enum`, `payment_status_enum`, `maintenance_type_enum`, `maintenance_status_enum`
 
 Notes:

@@ -75,3 +75,16 @@ Decisions:
 Notes:
 
 - Menu visibility remains role-based: agents can access cars/bookings, managers can access payments/maintenance, and users/RBAC is admin-only.
+
+Date: 2026-06-06
+
+Decisions:
+
+- Rebuilt `prisma/schema.prisma` to expose camelCase Prisma fields while mapping back to the snake_case tables and columns defined in `ai/sql-ddl.sql`.
+- Aligned the schema with the DDL-driven domain model for cars, bookings, payments, maintenance, and RBAC tables, including the missing `Booking.car` relation and booking image relations.
+- Added the DDL index definitions to Prisma schema indexes so the generated client and database intent stay in sync.
+- Updated `ai/data-structure.md` to reflect the camelCase Prisma API and the current mapping names.
+
+Notes:
+
+- Verification passed after the schema rewrite: `npx prisma validate`, `npx prisma generate`, and `npm run typecheck`.
