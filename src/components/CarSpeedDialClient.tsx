@@ -5,7 +5,8 @@ import type { ComponentType } from 'react'
 import { BadgePlus, Car, Plus, Shapes, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import CarCreateModal from '@/components/CarCreateDrawer'
+import CarCreateDrawer from '@/components/CarCreateDrawer'
+import VehicleTypeCreateModal from '@/components/VehicleTypeCreateModal'
 
 interface VehicleType {
   id: string
@@ -25,7 +26,7 @@ interface CarSpeedDialProps {
 type SpeedDialItem = {
   title: string
   description: string 
-  href: string
+  key: string
   icon: ComponentType<{ className?: string }>
   action?: 'modal' | 'link'
 }
@@ -34,41 +35,47 @@ const items: SpeedDialItem[] = [
   { 
     title: 'สร้างรถ', 
     description: '', 
-    href: '/cars/new', 
+    key: 'cars', 
     icon: Car,
-    action: 'modal',
-  },
-  { 
-    title: 'สร้างแบรนด์รถ', 
-    description: '', 
-    href: '/cars/brands/new', 
-    icon: BadgePlus,
   },
   {
     title: 'สร้างประเภทรถ',
     description: '',
-    href: '/cars/vehicle-types/new',
+    key: 'vehicle-types',
     icon: Shapes,
+  },
+  { 
+    title: 'สร้างแบรนด์รถ', 
+    description: '', 
+    key: 'brands', 
+    icon: BadgePlus,
   },
   {
     title: 'สร้างการบำรุงรักษา',
     description: '',
-    href: '/cars/maintenance/new',
+    key: 'maintenance',
     icon: Wrench,
   },
 ]
 
 export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps) {
   const [open, setOpen] = useState(false)
-  const [showModal, setShowModal] = useState(false)
+  const [showCarModal, setShowCarModal] = useState(false)
+  const [showVehicleTypeModal, setShowVehicleTypeModal] = useState(false)
 
   return (
     <>
-      {showModal && (
-        <CarCreateModal 
+      {showCarModal && (
+        <CarCreateDrawer 
           vehicleTypes={vehicleTypes}
           brands={brands}
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowCarModal(false)}
+        />
+      )}
+
+      {showVehicleTypeModal && (
+        <VehicleTypeCreateModal
+          onClose={() => setShowVehicleTypeModal(false)}
         />
       )}
 
@@ -88,11 +95,15 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
               const Icon = item.icon
               return (
                 <button
-                  key={item.href}
+                  key={item.key}
                   type="button"
                   onClick={() => {
-                    if (item.action === 'modal') {
-                      setShowModal(true)
+                    if (item.key === 'cars') {
+                      setShowCarModal(true)
+                      setOpen(false)
+                    }
+                    if (item.key === 'vehicle-types') {
+                      setShowVehicleTypeModal(true)
                       setOpen(false)
                     }
                   }}
@@ -115,7 +126,7 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
           </div>
         )}
 
-        {!showModal && (
+        {!showCarModal && !showVehicleTypeModal && (
           <Button
             type="button"
             size="lg"

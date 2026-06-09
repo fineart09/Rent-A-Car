@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { createCar } from '@/app/(dashboard)/cars/actions'
+import { createCar } from '@/app/(dashboard)/cars/cars-actions'
 
 interface VehicleType {
   id: string
@@ -106,8 +106,8 @@ export default function CarForm({
       } else {
         setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างรถ' })
       }
-    } catch (error) {
-      setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
+    // } catch (error) {
+      // setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
     } finally {
       setIsLoading(false)
     }
