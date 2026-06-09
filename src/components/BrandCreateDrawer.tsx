@@ -1,15 +1,15 @@
 'use client'
 
-import { X } from 'lucide-react'
 import { useEffect } from 'react'
+import { X } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
-import VehicleTypeForm from '@/components/VehicleTypeForm'
+import BrandForm from '@/components/BrandForm'
 
-interface VehicleTypeCreateModalProps {
+interface BrandCreateDrawerProps {
   onClose: () => void
 }
 
-export default function VehicleTypeCreateModal({ onClose }: VehicleTypeCreateModalProps) {
+export default function BrandCreateDrawer({ onClose }: BrandCreateDrawerProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -23,17 +23,18 @@ export default function VehicleTypeCreateModal({ onClose }: VehicleTypeCreateMod
       <button
         type="button"
         aria-label="Close"
-        className="fixed inset-0 z-30 bg-slate-950/30 backdrop-blur-[2px]"
+        className="fixed inset-0 z-30 bg-slate-950/30 backdrop-blur-[2px] my-0"
         onClick={onClose}
       />
+      
       <aside className="fixed right-0 top-0 z-40 h-full w-full max-w-xl overflow-y-auto bg-white shadow-2xl">
         <Card className="h-full rounded-none border-0">
           <CardContent className="flex h-full flex-col p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-extrabold text-slate-950">สร้างประเภทรถ</h2>
+                <h2 className="text-2xl font-extrabold text-slate-950">สร้างแบรนด์รถ</h2>
                 <p className="mt-2 text-sm font-medium text-slate-500">
-                  เพิ่มประเภทรถใหม่เข้าไปในระบบ
+                  เพิ่มแบรนด์รถใหม่เข้าไปในระบบ
                 </p>
               </div>
               <button
@@ -44,8 +45,9 @@ export default function VehicleTypeCreateModal({ onClose }: VehicleTypeCreateMod
                 <X className="h-5 w-5" />
               </button>
             </div>
+
             <div className="mt-6 flex-1 overflow-y-auto">
-              <VehicleTypeForm onSuccess={onClose} />
+              <BrandForm onSuccess={onClose} />
             </div>
           </CardContent>
         </Card>

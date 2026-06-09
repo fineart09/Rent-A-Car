@@ -6,7 +6,8 @@ import { BadgePlus, Car, Plus, Shapes, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import CarCreateDrawer from '@/components/CarCreateDrawer'
-import VehicleTypeCreateModal from '@/components/VehicleTypeCreateModal'
+import BrandCreateDrawer from '@/components/BrandCreateDrawer'
+import VehicleTypeCreateDrawer from '@/components/VehicleTypeCreateDrawer'
 
 interface VehicleType {
   id: string
@@ -61,6 +62,7 @@ const items: SpeedDialItem[] = [
 export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps) {
   const [open, setOpen] = useState(false)
   const [showCarModal, setShowCarModal] = useState(false)
+  const [showBrandModal, setShowBrandModal] = useState(false)
   const [showVehicleTypeModal, setShowVehicleTypeModal] = useState(false)
 
   return (
@@ -74,9 +76,13 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
       )}
 
       {showVehicleTypeModal && (
-        <VehicleTypeCreateModal
+        <VehicleTypeCreateDrawer
           onClose={() => setShowVehicleTypeModal(false)}
         />
+      )}
+
+      {showBrandModal && (
+        <BrandCreateDrawer onClose={() => setShowBrandModal(false)} />
       )}
 
       {open && (
@@ -106,10 +112,14 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
                       setShowVehicleTypeModal(true)
                       setOpen(false)
                     }
+                    if (item.key === 'brands') {
+                      setShowBrandModal(true)
+                      setOpen(false)
+                    }
                   }}
                   className={cn(
                     'group flex items-center gap-4 rounded-2xl border bg-white px-4 py-3 text-left shadow-lg shadow-slate-950/10 transition-all duration-200',
-                    'min-w-[190px] max-w-[220px]',
+                    'min-w-47.5 max-w-55',
                     'border-slate-200 hover:-translate-y-0.5 hover:border-violet-200 hover:bg-violet-50/50'
                   )}
                 >
@@ -126,7 +136,7 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
           </div>
         )}
 
-        {!showCarModal && !showVehicleTypeModal && (
+        {!showCarModal && !showVehicleTypeModal && !showBrandModal && (
           <Button
             type="button"
             size="lg"

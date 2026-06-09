@@ -106,8 +106,8 @@ export default function CarForm({
       } else {
         setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างรถ' })
       }
-    // } catch (error) {
-      // setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
+    } catch {
+      setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
     } finally {
       setIsLoading(false)
     }

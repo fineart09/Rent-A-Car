@@ -52,7 +52,9 @@ export async function createCar(input: CreateCarInput) {
         status: input.status,
         remark: input.remark,
         isDeleted: false,
+        createdAt: new Date(),
         createdBy: userId,
+        updatedAt: new Date(),
         updatedBy: userId,
       },
       include: {

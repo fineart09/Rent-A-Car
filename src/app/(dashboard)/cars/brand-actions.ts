@@ -3,16 +3,16 @@
 import prisma from '@/lib/prisma'
 import { getSessionAndRoles } from '@/lib/auth-server'
 
-interface CreateVehicleTypeInput {
+interface CreateBrandInput {
   name: string
   description: string | null
   remark: string | null
 }
 
-export async function createVehicleType(input: CreateVehicleTypeInput) {
+export async function createBrand(input: CreateBrandInput) {
   try {
     const normalizedName = input.name.trim()
-    const existing = await prisma.vehicleType.findFirst({
+    const existing = await prisma.brand.findFirst({
       where: {
         name: normalizedName,
         isDeleted: false,
@@ -22,7 +22,7 @@ export async function createVehicleType(input: CreateVehicleTypeInput) {
     if (existing) {
       return {
         success: false,
-        error: 'ประเภทรถนี้มีอยู่แล้ว กรุณาใช้ชื่ออื่น',
+        error: 'แบรนด์รถนี้มีอยู่แล้ว กรุณาใช้ชื่ออื่น',
       }
     }
 
@@ -32,11 +32,11 @@ export async function createVehicleType(input: CreateVehicleTypeInput) {
     if (!userId) {
       return {
         success: false,
-        error: 'กรุณาเข้าสู่ระบบใหม่ก่อนสร้างข้อมูลประเภทรถ',
+        error: 'กรุณาเข้าสู่ระบบใหม่ก่อนสร้างข้อมูลแบรนด์รถ',
       }
     }
 
-    const vehicleType = await prisma.vehicleType.create({
+    const brand = await prisma.brand.create({
       data: {
         name: normalizedName,
         description: input.description,
@@ -51,13 +51,13 @@ export async function createVehicleType(input: CreateVehicleTypeInput) {
 
     return {
       success: true,
-      data: vehicleType,
+      data: brand,
     }
   } catch (error) {
-    console.error('[createVehicleType] Error:', error)
+    console.error('[createBrand] Error:', error)
     return {
       success: false,
-      error: 'เกิดข้อผิดพลาดในการสร้างประเภทรถ',
+      error: 'เกิดข้อผิดพลาดในการสร้างแบรนด์รถ',
     }
   }
 }

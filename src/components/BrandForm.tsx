@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { createVehicleType } from '@/app/(dashboard)/cars/vehicle-type-actions'
+import { createBrand } from '@/app/(dashboard)/cars/brand-actions'
 
-interface VehicleTypeFormProps {
+interface BrandFormProps {
   onSuccess: () => void
 }
 
-export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
+export default function BrandForm({ onSuccess }: BrandFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
@@ -42,7 +42,7 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
     e.preventDefault()
 
     const newErrors: Record<string, string> = {}
-    if (!formData.name.trim()) newErrors.name = 'ชื่อประเภทรถเป็นข้อมูลบังคับ'
+    if (!formData.name.trim()) newErrors.name = 'ชื่อแบรนด์รถเป็นข้อมูลบังคับ'
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -53,7 +53,7 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
     setIsLoading(true)
 
     try {
-      const result = await createVehicleType({
+      const result = await createBrand({
         name: formData.name.trim(),
         description: formData.description || null,
         remark: formData.remark || null,
@@ -62,7 +62,7 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
       if (result.success) {
         onSuccess()
       } else {
-        setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างประเภทรถ' })
+        setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างแบรนด์รถ' })
       }
     } catch {
       setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
@@ -81,19 +81,19 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
 
       <section className="space-y-4">
         <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-500">
-          ข้อมูลประเภทรถ
+          ข้อมูลแบรนด์รถ
         </h3>
 
         <div>
           <Label htmlFor="name" className="font-bold text-slate-900">
-            ชื่อประเภทรถ <span className="text-red-600">*</span>
+            ชื่อแบรนด์รถ <span className="text-red-600">*</span>
           </Label>
-          <p className="mt-1 text-xs font-medium text-slate-500">เช่น SUV, Sedan, Pickup</p>
+          <p className="mt-1 text-xs font-medium text-slate-500">เช่น Toyota, Honda, Isuzu</p>
           <Input
             id="name"
             name="name"
             type="text"
-            placeholder="เช่น SUV, Sedan, Pickup"
+            placeholder="เช่น Toyota, Honda, Isuzu"
             value={formData.name}
             onChange={handleChange}
             className="mt-2"
@@ -110,7 +110,7 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
           <Textarea
             id="description"
             name="description"
-            placeholder="เพิ่มรายละเอียดเกี่ยวกับประเภทรถนี้..."
+            placeholder="รายละเอียดเกี่ยวกับแบรนด์นี้..."
             value={formData.description}
             onChange={handleChange}
             className="mt-2 resize-none"
@@ -128,7 +128,7 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
           <Textarea
             id="remark"
             name="remark"
-            placeholder="หมายเหตุเพิ่มเติม เช่น เงื่อนไขการใช้งาน..."
+            placeholder="หมายเหตุเพิ่มเติม..."
             value={formData.remark}
             onChange={handleChange}
             className="mt-2 resize-none"
@@ -142,14 +142,8 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
 
       <div className="sticky bottom-0 left-0 right-0 border-t border-slate-200 bg-white pt-4">
         <div className="flex gap-3">
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1"
-          >
-            {isLoading && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-            )}
+          <Button type="submit" disabled={isLoading} className="flex-1">
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
             {isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
           </Button>
         </div>
