@@ -12,3 +12,5 @@ export default function Label({ children, className = '', ...props }: LabelProps
     </label>
   )
 }
+
+export { Label }

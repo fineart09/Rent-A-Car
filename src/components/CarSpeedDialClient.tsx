@@ -1,0 +1,134 @@
+'use client'
+
+import { useState } from 'react'
+import type { ComponentType } from 'react'
+import { BadgePlus, Car, Plus, Shapes, Wrench } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import CarCreateModal from '@/components/CarCreateModal'
+
+interface VehicleType {
+  id: string
+  name: string
+}
+
+interface Brand {
+  id: string
+  name: string
+}
+
+interface CarSpeedDialProps {
+  vehicleTypes: VehicleType[]
+  brands: Brand[]
+}
+
+type SpeedDialItem = {
+  title: string
+  description: string 
+  href: string
+  icon: ComponentType<{ className?: string }>
+  action?: 'modal' | 'link'
+}
+
+const items: SpeedDialItem[] = [
+  { 
+    title: 'สร้างรถ', 
+    description: '', 
+    href: '/cars/new', 
+    icon: Car,
+    action: 'modal',
+  },
+  { 
+    title: 'สร้างแบรนด์รถ', 
+    description: '', 
+    href: '/cars/brands/new', 
+    icon: BadgePlus,
+  },
+  {
+    title: 'สร้างประเภทรถ',
+    description: '',
+    href: '/cars/vehicle-types/new',
+    icon: Shapes,
+  },
+  {
+    title: 'สร้างการบำรุงรักษา',
+    description: '',
+    href: '/cars/maintenance/new',
+    icon: Wrench,
+  },
+]
+
+export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps) {
+  const [open, setOpen] = useState(false)
+  const [showModal, setShowModal] = useState(false)
+
+  return (
+    <>
+      {showModal && (
+        <CarCreateModal 
+          vehicleTypes={vehicleTypes}
+          brands={brands}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+
+      {open && (
+        <button
+          type="button"
+          aria-label="Close speed dial"
+          className="fixed inset-0 z-30 bg-transparent"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+        {open && (
+          <div className="flex flex-col items-end gap-3">
+            {items.map((item) => {
+              const Icon = item.icon
+              return (
+                <button
+                  key={item.href}
+                  type="button"
+                  onClick={() => {
+                    if (item.action === 'modal') {
+                      setShowModal(true)
+                      setOpen(false)
+                    }
+                  }}
+                  className={cn(
+                    'group flex items-center gap-4 rounded-2xl border bg-white px-4 py-3 text-left shadow-lg shadow-slate-950/10 transition-all duration-200',
+                    'min-w-[190px] max-w-[220px]',
+                    'border-slate-200 hover:-translate-y-0.5 hover:border-violet-200 hover:bg-violet-50/50'
+                  )}
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-600 shadow-sm transition group-hover:bg-white group-hover:text-violet-700">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold text-slate-900">{item.title}</div>
+                    <div className="truncate text-xs font-medium text-slate-500">{item.description}</div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {!showModal && (
+          <Button
+            type="button"
+            size="lg"
+            onClick={() => setOpen((value) => !value)}
+            className={cn(
+              'h-14 w-14 rounded-xl border-2 border-violet-200 bg-violet-600 shadow-2xl shadow-violet-900/25',
+              'hover:bg-violet-700'
+            )}
+          >
+            <Plus className="h-7 w-7" aria-hidden="true" />
+          </Button>
+        )}
+      </div>
+    </>
+  )
+}

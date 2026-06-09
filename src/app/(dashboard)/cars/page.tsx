@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import Input from '@/components/ui/input'
 import Select from '@/components/ui/select'
-import CarSpeedDial from '@/components/CarSpeedDial'
 import {
   formatCompactNumber,
   getStatusBadgeClass,
   getStatusLabel,
   toNumber,
 } from '@/lib/ui-format'
+import SpeedDialContainer from '@/components/SpeedDialContainer'
 
 export const dynamic = 'force-dynamic'
 
@@ -223,7 +223,7 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
         </Card>
       )}
 
-      <CarSpeedDial />
+      <SpeedDialContainer />
     </div>
   )
 }

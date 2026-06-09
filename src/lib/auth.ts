@@ -3,6 +3,7 @@ import { scryptSync, timingSafeEqual } from 'node:crypto';
 import NextAuth, { type NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import prisma from './prisma'
+import { SessionUser } from '@/types/session';
 
 function verifyPassword(password: string, storedHash: string | null) {
   if (!storedHash) return false;
@@ -47,6 +48,7 @@ export const authConfig: NextAuthConfig = {
         return {
           id: user.id,
           email: user.email,
+          phone: user.phone,
           name: `${user.firstName} ${user.lastName}`,
           roles: user.roles.map((userRole) => userRole.role.code),
         };
@@ -56,17 +58,23 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        const authUser = user as typeof user & { roles?: string[] };
+        const authUser = user as typeof user & SessionUser;
         token.id = authUser.id;
         token.roles = Array.isArray(authUser.roles) ? authUser.roles : [];
+        token.phone = authUser.phone;
+        token.email = authUser.email;
+        token.name = authUser.name;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        const sessionUser = session.user as typeof session.user & { id?: string; roles?: string[] };
+        const sessionUser = session.user as typeof session.user & SessionUser;
         sessionUser.id = token.id as string;
         sessionUser.roles = Array.isArray(token.roles) ? token.roles : [];
+        sessionUser.phone = token.phone as string;
+        sessionUser.email = token.email as string;
+        sessionUser.name = token.name as string;
       }
       return session;
     },

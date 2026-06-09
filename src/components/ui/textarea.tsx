@@ -1,0 +1,20 @@
+'use client'
+
+import React from 'react'
+import { cn } from '@/lib/utils'
+
+type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>
+
+export default function Textarea({ className, ...props }: TextareaProps) {
+  return (
+    <textarea
+      {...props}
+      className={cn(
+        'block h-24 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-900 shadow-sm shadow-slate-200/50 outline-none transition-colors placeholder:text-slate-400 focus-visible:border-blue-600 focus-visible:ring-2 focus-visible:ring-blue-600/20',
+        className
+      )}
+    />
+  )
+}
+
+export { Textarea }
