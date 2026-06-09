@@ -60,3 +60,11 @@ Date: 2026-06-06
 - Renamed the active menu labels to match the CSV naming style and added new route targets for `/driver`, `/products`, `/booking`, `/setting/users`, and `/cars/maintenance`.
 - Added lightweight placeholder pages for each new menu target so the sidebar links resolve cleanly.
 - Cleared the generated Next.js cache and re-ran `npm run typecheck` successfully after the route restructure.
+
+Date: 2026-06-09
+
+- User confirmed the non-create speed dial items should remain placeholders for a later phase.
+- Reviewed the duplicated car-create implementations and kept a single active path for the create-car flow.
+- Removed unused duplicate car-create components and old speed dial variants.
+- Hardened the `createCar()` server action to require an authenticated session before inserting audit fields.
+- Verified the cleanup with `npm run typecheck`.

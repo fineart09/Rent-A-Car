@@ -5,7 +5,7 @@ import type { ComponentType } from 'react'
 import { BadgePlus, Car, Plus, Shapes, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import CarCreateModal from '@/components/CarCreateModal'
+import CarCreateModal from '@/components/CarCreateDrawer'
 
 interface VehicleType {
   id: string

@@ -100,3 +100,15 @@ Decisions:
 Notes:
 
 - Verification passed after the menu rename pass: `npm run typecheck`.
+
+Date: 2026-06-09
+
+Decisions:
+
+- Consolidated the car-creation flow to a single active implementation: `CarSpeedDialClient` + `CarCreateModal` + `CarForm` + `SpeedDialContainer`.
+- Removed unused duplicate car-create components and old speed dial variants to reduce drift and make edits land in one place.
+- Hardened `createCar()` so it fails cleanly when there is no authenticated session instead of writing an invalid `unknown` audit ID.
+
+Notes:
+
+- Verification passed after cleanup: `npm run typecheck`.

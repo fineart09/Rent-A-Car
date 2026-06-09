@@ -30,6 +30,14 @@ export async function createCar(input: CreateCarInput) {
     }
 
     const userRoles = await getSessionAndRoles();
+    const userId = userRoles.session?.user?.id
+
+    if (!userId) {
+      return {
+        success: false,
+        error: 'กรุณาเข้าสู่ระบบใหม่ก่อนสร้างข้อมูลรถ',
+      }
+    }
 
     // Create the car
     const car = await prisma.car.create({
@@ -44,8 +52,8 @@ export async function createCar(input: CreateCarInput) {
         status: input.status,
         remark: input.remark,
         isDeleted: false,
-        createdBy: userRoles.session?.user?.id || 'unknown',
-        updatedBy: userRoles.session?.user?.id || 'unknown',
+        createdBy: userId,
+        updatedBy: userId,
       },
       include: {
         brand: true,

@@ -106,15 +106,15 @@ export default function CarForm({
       } else {
         setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างรถ' })
       }
-    // } catch (error) {
-      // setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
+    } catch (error) {
+      setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 pb-20">
+    <form onSubmit={handleSubmit}>
       {errors.form && (
         <div className="rounded-lg bg-red-50 p-4 text-sm font-medium text-red-700">
           {errors.form}
@@ -126,50 +126,52 @@ export default function CarForm({
         ข้อมูลรถ
         </h3>
 
-        <div>
-          <Label htmlFor="vehicleTypeId" className="font-bold text-slate-900">
-            ประเภทรถ <span className="text-red-600">*</span>
-          </Label>
-          <select
-            id="vehicleTypeId"
-            name="vehicleTypeId"
-            value={formData.vehicleTypeId}
-            onChange={handleChange}
-            className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          >
-            <option value="">-- เลือกประเภทรถ --</option>
-            {vehicleTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
-              </option>
-            ))}
-          </select>
-          {errors.vehicleTypeId && (
-            <p className="mt-1 text-xs font-medium text-red-600">{errors.vehicleTypeId}</p>
-          )}
-        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="vehicleTypeId" className="font-bold text-slate-900">
+              ประเภทรถ <span className="text-red-600">*</span>
+            </Label>
+            <select
+              id="vehicleTypeId"
+              name="vehicleTypeId"
+              value={formData.vehicleTypeId}
+              onChange={handleChange}
+              className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            >
+              <option value="">-- เลือกประเภทรถ --</option>
+              {vehicleTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+            {errors.vehicleTypeId && (
+              <p className="mt-1 text-xs font-medium text-red-600">{errors.vehicleTypeId}</p>
+            )}
+          </div>
 
-        <div>
-          <Label htmlFor="brandId" className="font-bold text-slate-900">
-            แบรนด์รถ <span className="text-red-600">*</span>
-          </Label>
-          <select
-            id="brandId"
-            name="brandId"
-            value={formData.brandId}
-            onChange={handleChange}
-            className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          >
-            <option value="">-- เลือกแบรนด์ --</option>
-            {brands.map((brand) => (
-              <option key={brand.id} value={brand.id}>
-                {brand.name}
-              </option>
-            ))}
-          </select>
-          {errors.brandId && (
-            <p className="mt-1 text-xs font-medium text-red-600">{errors.brandId}</p>
-          )}
+          <div>
+            <Label htmlFor="brandId" className="font-bold text-slate-900">
+              แบรนด์รถ <span className="text-red-600">*</span>
+            </Label>
+            <select
+              id="brandId"
+              name="brandId"
+              value={formData.brandId}
+              onChange={handleChange}
+              className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            >
+              <option value="">-- เลือกแบรนด์ --</option>
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+            {errors.brandId && (
+              <p className="mt-1 text-xs font-medium text-red-600">{errors.brandId}</p>
+            )}
+          </div>
         </div>
         
         <div>
@@ -302,9 +304,6 @@ export default function CarForm({
           />
         </div>
 
-        <div className="rounded-lg bg-blue-50 p-3 text-xs font-medium text-blue-700">
-          <p><strong>หมายเหตุ:</strong> เลขเครื่องยนต์และเลขตัวถังสามารถเพิ่มเข้าในระบบได้ในรอบถัดไป</p>
-        </div>
       </section>
 
       <div className="sticky bottom-0 left-0 right-0 border-t border-slate-200 bg-white pt-4">
