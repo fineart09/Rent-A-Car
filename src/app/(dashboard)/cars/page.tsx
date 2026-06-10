@@ -176,7 +176,7 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
                               <Edit className="size-4" />
                             </Link>
                           </Button>
-                          <Button asChild size={"sm"} variant="ghost">
+                          <Button asChild size={"sm"} variant="destructive">
                             <Link href={`/cars/${car.id}`}>
                             <Trash className="size-4 text-red-500" />
                             </Link>

@@ -6,22 +6,20 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { createVehicleType } from '@/app/(dashboard)/cars/vehicle-type-actions'
-import { useRouter } from 'next/navigation'
+import { createMaintenance } from '@/app/(dashboard)/cars/maintenance-actions'
 
-interface VehicleTypeFormProps {
+interface MaintenanceFormProps {
   onSuccess: () => void
 }
 
-export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
+export default function MaintenanceForm({ onSuccess }: MaintenanceFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    remark: '',
+    estimatedCost: '',
   })
-  const router = useRouter()
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -44,7 +42,11 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
     e.preventDefault()
 
     const newErrors: Record<string, string> = {}
-    if (!formData.name.trim()) newErrors.name = 'ชื่อประเภทรถเป็นข้อมูลบังคับ'
+    if (!formData.name.trim()) newErrors.name = 'ชื่อการบำรุงรักษาเป็นข้อมูลบังคับ'
+    
+    if (formData.estimatedCost && isNaN(parseFloat(formData.estimatedCost))) {
+      newErrors.estimatedCost = 'ค่าประมาณต้องเป็นตัวเลข'
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
@@ -55,18 +57,16 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
     setIsLoading(true)
 
     try {
-      const result = await createVehicleType({
+      const result = await createMaintenance({
         name: formData.name.trim(),
         description: formData.description || null,
-        remark: formData.remark || null,
+        estimatedCost: formData.estimatedCost ? parseFloat(formData.estimatedCost) : null,
       })
 
       if (result.success) {
         onSuccess()
-
-        router.refresh()
       } else {
-        setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างประเภทรถ' })
+        setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างการบำรุงรักษา' })
       }
     } catch {
       setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
@@ -85,18 +85,19 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
 
       <section className="space-y-4">
         <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-500">
-          ข้อมูลประเภทรถ
+          ข้อมูลการบำรุงรักษา
         </h3>
 
         <div>
           <Label htmlFor="name" className="font-bold text-slate-900">
-            ชื่อประเภทรถ <span className="text-red-600">*</span>
+            ชื่อการบำรุงรักษา <span className="text-red-600">*</span>
           </Label>
+          <p className="mt-1 text-xs font-medium text-slate-500">เช่น เปลี่ยนน้ำมันเครื่อง, ตรวจเบรก</p>
           <Input
             id="name"
             name="name"
             type="text"
-            placeholder="เช่น SUV, Sedan, Pickup"
+            placeholder="เช่น เปลี่ยนน้ำมันเครื่อง"
             value={formData.name}
             onChange={handleChange}
             className="mt-2"
@@ -113,32 +114,32 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
           <Textarea
             id="description"
             name="description"
-            placeholder="เพิ่มรายละเอียดเกี่ยวกับประเภทรถนี้..."
+            placeholder="เพิ่มรายละเอียดเกี่ยวกับการบำรุงรักษานี้..."
             value={formData.description}
             onChange={handleChange}
             className="mt-2 resize-none"
             rows={3}
           />
-          {errors.description && (
-            <p className="mt-1 text-xs font-medium text-red-600">{errors.description}</p>
-          )}
         </div>
 
         <div>
-          <Label htmlFor="remark" className="font-bold text-slate-900">
-            หมายเหตุ
+          <Label htmlFor="estimatedCost" className="font-bold text-slate-900">
+            ค่าประมาณ (บาท)
           </Label>
-          <Textarea
-            id="remark"
-            name="remark"
-            placeholder="หมายเหตุเพิ่มเติม เช่น เงื่อนไขการใช้งาน..."
-            value={formData.remark}
+          <Input
+            id="estimatedCost"
+            name="estimatedCost"
+            type="number"
+            inputMode="decimal"
+            placeholder="0"
+            min="0"
+            step="0.01"
+            value={formData.estimatedCost}
             onChange={handleChange}
-            className="mt-2 resize-none"
-            rows={3}
+            className="mt-2"
           />
-          {errors.remark && (
-            <p className="mt-1 text-xs font-medium text-red-600">{errors.remark}</p>
+          {errors.estimatedCost && (
+            <p className="mt-1 text-xs font-medium text-red-600">{errors.estimatedCost}</p>
           )}
         </div>
       </section>

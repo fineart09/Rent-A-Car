@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import CarCreateDrawer from '@/components/CarCreateDrawer'
 import BrandCreateDrawer from '@/components/BrandCreateDrawer'
 import VehicleTypeCreateDrawer from '@/components/VehicleTypeCreateDrawer'
+import MaintenanceCreateModal from '@/components/MaintenanceCreateDrawer'
 
 interface VehicleType {
   id: string
@@ -64,6 +65,27 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
   const [showCarModal, setShowCarModal] = useState(false)
   const [showBrandModal, setShowBrandModal] = useState(false)
   const [showVehicleTypeModal, setShowVehicleTypeModal] = useState(false)
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false)
+  const handleMenuClick = (item: SpeedDialItem) => {
+    {
+      if (item.key === 'cars') {
+        setShowCarModal(true)
+        setOpen(false)
+      }
+      if (item.key === 'vehicle-types') {
+        setShowVehicleTypeModal(true)
+        setOpen(false)
+      }
+      if (item.key === 'brands') {
+        setShowBrandModal(true)
+        setOpen(false)
+      }
+      if (item.key === 'maintenance') {
+        setShowMaintenanceModal(true)
+        setOpen(false)
+      }
+    }
+  }
 
   return (
     <>
@@ -84,6 +106,12 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
       {showBrandModal && (
         <BrandCreateDrawer onClose={() => setShowBrandModal(false)} />
       )}
+      
+      {showMaintenanceModal && (
+        <MaintenanceCreateModal 
+          onClose={() => setShowMaintenanceModal(false)}
+        />
+      )}
 
       {open && (
         <button
@@ -103,20 +131,7 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
                 <button
                   key={item.key}
                   type="button"
-                  onClick={() => {
-                    if (item.key === 'cars') {
-                      setShowCarModal(true)
-                      setOpen(false)
-                    }
-                    if (item.key === 'vehicle-types') {
-                      setShowVehicleTypeModal(true)
-                      setOpen(false)
-                    }
-                    if (item.key === 'brands') {
-                      setShowBrandModal(true)
-                      setOpen(false)
-                    }
-                  }}
+                  onClick={() => (handleMenuClick(item))}
                   className={cn(
                     'group flex items-center gap-4 rounded-2xl border bg-white px-4 py-3 text-left shadow-lg shadow-slate-950/10 transition-all duration-200',
                     'min-w-47.5 max-w-55',
@@ -136,7 +151,11 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
           </div>
         )}
 
-        {!showCarModal && !showVehicleTypeModal && !showBrandModal && (
+        {!showCarModal && 
+        !showVehicleTypeModal && 
+        !showBrandModal && 
+        !showMaintenanceModal && 
+        (
           <Button
             type="button"
             size="lg"

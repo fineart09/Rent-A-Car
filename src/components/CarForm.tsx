@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -114,7 +114,7 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="space-y-8 pb-20">
       {errors.form && (
         <div className="rounded-lg bg-red-50 p-4 text-sm font-medium text-red-700">
           {errors.form}
@@ -310,7 +310,9 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
             type="submit"
             disabled={isLoading}
             className="flex-1"
+            variant="save"
           >
+            <Save className="mr-2 h-4 w-4" aria-hidden="true" />
             {isLoading && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
             )}

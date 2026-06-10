@@ -96,7 +96,7 @@ export default async function CarDetailPage({ params }: PageProps) {
               จองรถคันนี้
             </Link>
           </Button>
-          <Button variant="ghost" className='bg-green-600 text-white hover:bg-green-700 hover:text-white'>
+          <Button variant="save" >
             <Save className="h-4 w-4" aria-hidden="true" />
             บันทึกข้อมูลรถ
           </Button>
@@ -147,10 +147,6 @@ export default async function CarDetailPage({ params }: PageProps) {
         <aside className="space-y-6">
           <Card>
             <CardContent className="p-6">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-                <Car className="h-7 w-7" aria-hidden="true" />
-              </div>
-
               <h2 className="mt-5 text-2xl font-extrabold text-slate-950">ข้อมูลรถ</h2>
 
               <dl className="mt-6 space-y-4 text-sm">

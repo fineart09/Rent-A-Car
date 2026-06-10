@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -145,7 +145,8 @@ export default function BrandForm({ onSuccess }: BrandFormProps) {
 
       <div className="sticky bottom-0 left-0 right-0 border-t border-slate-200 bg-white pt-4">
         <div className="flex gap-3">
-          <Button type="submit" disabled={isLoading} className="flex-1">
+          <Button type="submit" disabled={isLoading} className="flex-1" variant={"save"}>
+            <Save className="mr-2 h-4 w-4" aria-hidden="true" />
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
             {isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
           </Button>

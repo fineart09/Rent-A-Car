@@ -10,15 +10,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-blue-700 text-white shadow-sm shadow-blue-700/20 hover:bg-blue-800",
-        outline:
-          "border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-200/50 hover:bg-slate-50 aria-expanded:bg-slate-50 aria-expanded:text-slate-950",
-        secondary:
-          "bg-slate-100 text-slate-800 hover:bg-slate-200 aria-expanded:bg-slate-200 aria-expanded:text-slate-950",
-        ghost:
-          "text-slate-700 hover:bg-slate-100 hover:text-slate-950 aria-expanded:bg-slate-100 aria-expanded:text-slate-950",
-        destructive:
-          "bg-red-50 text-red-700 hover:bg-red-100 focus-visible:ring-red-600/20",
+        outline: "border-slate-200 bg-white text-slate-700 shadow-sm shadow-slate-200/50 hover:bg-slate-50 aria-expanded:bg-slate-50 aria-expanded:text-slate-950",
+        secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200 aria-expanded:bg-slate-200 aria-expanded:text-slate-950",
+        ghost: "text-slate-700 hover:bg-slate-100 hover:text-slate-950 aria-expanded:bg-slate-100 aria-expanded:text-slate-950",
+        destructive: "bg-red-50 text-red-700 hover:bg-red-100 focus-visible:ring-red-600/20",
         link: "rounded-none text-blue-700 underline-offset-4 hover:underline",
+        save: "bg-emerald-600 text-white shadow-sm shadow-emerald-600/20 hover:bg-emerald-700 focus-visible:ring-emerald-600/25",
       },
       size: {
         default:
