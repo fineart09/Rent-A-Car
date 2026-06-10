@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { createVehicleType } from '@/app/(dashboard)/cars/vehicle-type-actions'
+import { useRouter } from 'next/navigation'
 
 interface VehicleTypeFormProps {
   onSuccess: () => void
@@ -20,6 +21,7 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
     description: '',
     remark: '',
   })
+  const router = useRouter()
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -61,6 +63,8 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
 
       if (result.success) {
         onSuccess()
+
+        router.refresh()
       } else {
         setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างประเภทรถ' })
       }
@@ -88,7 +92,6 @@ export default function VehicleTypeForm({ onSuccess }: VehicleTypeFormProps) {
           <Label htmlFor="name" className="font-bold text-slate-900">
             ชื่อประเภทรถ <span className="text-red-600">*</span>
           </Label>
-          <p className="mt-1 text-xs font-medium text-slate-500">เช่น SUV, Sedan, Pickup</p>
           <Input
             id="name"
             name="name"

@@ -148,7 +148,7 @@ export default async function DashboardPage() {
           <h2 className="text-2xl font-extrabold text-slate-950">รายการเช่าล่าสุด</h2>
 
           <div className="mt-7 overflow-x-auto">
-            <table className="w-full min-w-[820px] text-left">
+            <table className="w-full min-w-205 text-left">
               <thead>
                 <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
                   <th className="px-3 py-3">รหัส</th>

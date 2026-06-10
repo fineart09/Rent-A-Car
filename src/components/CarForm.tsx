@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { createCar } from '@/app/(dashboard)/cars/cars-actions'
+import { useRouter } from 'next/navigation'
 
 interface VehicleType {
   id: string
@@ -32,11 +33,7 @@ const carStatuses = [
   { value: 'Reserved', label: 'จองสำรอง' },
 ]
 
-export default function CarForm({
-  vehicleTypes,
-  brands,
-  onSuccess,
-}: CarFormProps) {
+export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
@@ -50,6 +47,7 @@ export default function CarForm({
     status: 'Available',
     remark: '',
   })
+  const router = useRouter()
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -103,6 +101,8 @@ export default function CarForm({
 
       if (result.success) {
         onSuccess()
+
+        router.refresh()
       } else {
         setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างรถ' })
       }
@@ -256,10 +256,8 @@ export default function CarForm({
               id="mileage"
               name="mileage"
               type="number"
-              inputMode="decimal"
               placeholder="0"
               min="0"
-              step="0.1"
               value={formData.mileage}
               onChange={handleChange}
               className="mt-2"

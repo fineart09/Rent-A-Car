@@ -61,7 +61,7 @@ model Car {
   id           String     @id @default(uuid()) @map("cars_id") @db.Uuid
   vehicleTypeId String    @map("vehicle_type_id") @db.Uuid
   brandId      String     @map("brand_id") @db.Uuid
-  mileage      Decimal    @default(0) @map("cars_mileage") @db.Decimal(12, 2)
+  mileage      Int        @default(0) @map("cars_mileage")
   model        String     @map("cars_model") @db.VarChar(100)
   year         String     @map("cars_years") @db.VarChar(4)
   color        String     @map("cars_color") @db.VarChar(50)

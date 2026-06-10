@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { createBrand } from '@/app/(dashboard)/cars/brand-actions'
+import { useRouter } from 'next/navigation'
 
 interface BrandFormProps {
   onSuccess: () => void
@@ -20,6 +21,7 @@ export default function BrandForm({ onSuccess }: BrandFormProps) {
     description: '',
     remark: '',
   })
+  const router = useRouter()
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -61,6 +63,8 @@ export default function BrandForm({ onSuccess }: BrandFormProps) {
 
       if (result.success) {
         onSuccess()
+
+        router.refresh()
       } else {
         setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างแบรนด์รถ' })
       }
@@ -88,7 +92,6 @@ export default function BrandForm({ onSuccess }: BrandFormProps) {
           <Label htmlFor="name" className="font-bold text-slate-900">
             ชื่อแบรนด์รถ <span className="text-red-600">*</span>
           </Label>
-          <p className="mt-1 text-xs font-medium text-slate-500">เช่น Toyota, Honda, Isuzu</p>
           <Input
             id="name"
             name="name"

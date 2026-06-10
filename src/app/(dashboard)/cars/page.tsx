@@ -1,6 +1,5 @@
-import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Calendar, Car, Gauge, Palette, Search } from 'lucide-react'
+import { Car, Edit, Search, Trash } from 'lucide-react'
 import prisma from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,12 +20,6 @@ const carStatuses = ['Available', 'Booked', 'Maintenance', 'Unavailable', 'Reser
 
 type CarsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
-}
-
-function getFirstImage(
-  images: Array<{ number: number; image: { url: string; name: string } }>
-) {
-  return [...images].sort((a, b) => a.number - b.number)[0]?.image
 }
 
 export default async function CarsPage({ searchParams }: CarsPageProps) {
@@ -106,7 +99,7 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
       <form
         method="get"
         action="/cars"
-        className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 lg:grid-cols-[minmax(220px,1fr)_180px_160px_160px_150px_auto]"
+        className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 lg:grid-cols-3 xl:grid-cols-[minmax(220px,1fr)_180px_160px_160px_150px_auto] overflow-auto"
       >
         <div className="relative">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -137,80 +130,6 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
         </Button>
       </form>
 
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {cars.map((car) => {
-          const image = getFirstImage(car.images)
-
-          return (
-            <Card key={car.id} className="overflow-hidden">
-              <div className="relative h-52 bg-slate-100">
-                {image ? (
-                  <Image
-                    src={image.url}
-                    alt={image.name || `${car.brand.name} ${car.model}`}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-slate-400">
-                    <Car className="h-12 w-12" aria-hidden="true" />
-                  </div>
-                )}
-
-                <div className="absolute left-4 top-4">
-                  <Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge>
-                </div>
-              </div>
-
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <h2 className="truncate text-xl font-extrabold text-slate-950">
-                      {car.brand.name} {car.model}
-                    </h2>
-                    <p className="mt-1 text-sm font-bold text-slate-500">{car.license}</p>
-                  </div>
-                  <div className="rounded-xl bg-blue-50 px-3 py-2 text-sm font-extrabold text-blue-700">
-                    {car.vehicleType.name}
-                  </div>
-                </div>
-
-                <div className="mt-6 grid grid-cols-3 gap-3 text-sm font-bold text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                    {car.year || '-'}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Gauge className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                    {formatCompactNumber(toNumber(car.mileage))} km
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-slate-400" aria-hidden="true" />
-                    {car.color || '-'}
-                  </div>
-                </div>
-
-                {car.remark && (
-                  <p className="mt-5 line-clamp-2 text-sm font-medium leading-6 text-slate-500">
-                    {car.remark}
-                  </p>
-                )}
-
-                <div className="mt-6 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-400">ID: {car.id.slice(0, 8)}</span>
-                  <Button asChild size="sm">
-                    <Link href={`/cars/${car.id}`}>
-                      รายละเอียด
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </section>
-
       {cars.length === 0 && (
         <Card>
           <CardContent className="py-14 text-center">
@@ -219,6 +138,56 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
             </div>
             <h2 className="mt-5 text-xl font-extrabold text-slate-950">ไม่พบรถที่ตรงกับเงื่อนไข</h2>
             <p className="mt-2 text-sm font-semibold text-slate-500">ลองเปลี่ยนคำค้นหาหรือตัวกรองอีกครั้ง</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {cars.length > 0 && (
+        <Card>
+          <CardContent className="py-14 text-center overflow-auto">
+            <table className="mx-auto w-full text-left">
+              <thead>
+                <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
+                  <th className="px-3 py-3">ยี่ห้อ/รุ่น</th>
+                  <th className="px-3 py-3">ปี</th>
+                  <th className="px-3 py-3">ทะเบียน</th>
+                  <th className="px-3 py-3">สี</th>
+                  <th className="px-3 py-3">ประเภท</th>
+                  <th className="px-3 py-3 text-right">เลขไมล์</th>
+                  <th className="px-3 py-3">สถานะ</th>
+                  <th className='px-3 py-3 text-right'>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cars.map((car) => {
+                  return (
+                    <tr key={car.id} className="border-b border-slate-200">
+                      <td className="px-3 py-3">{car.brand.name} {car.model}</td>
+                      <td className="px-3 py-3">{car.year}</td>
+                      <td className="px-3 py-3">{car.license}</td>
+                      <td className="px-3 py-3">{car.color}</td>
+                      <td className="px-3 py-3">{car.vehicleType.name}</td>
+                      <td className="px-3 py-3 text-right">{formatCompactNumber(toNumber(car.mileage))}</td>
+                      <td className="px-3 py-3"><Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge></td>
+                      <td className='px-3 py-3 text-right'>
+                        <div className="flex justify-end gap-2">
+                          <Button asChild size={"sm"} variant="ghost">
+                            <Link href={`/cars/${car.id}`}>
+                              <Edit className="size-4" />
+                            </Link>
+                          </Button>
+                          <Button asChild size={"sm"} variant="ghost">
+                            <Link href={`/cars/${car.id}`}>
+                            <Trash className="size-4 text-red-500" />
+                            </Link>
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </CardContent>
         </Card>
       )}
