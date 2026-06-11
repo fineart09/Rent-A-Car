@@ -3,7 +3,6 @@
 import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import MaintenanceForm from '@/components/MaintenanceForm'
 
 interface MaintenanceCreateDrawerProps {
   onClose: () => void
@@ -45,7 +44,6 @@ export default function MaintenanceCreateDrawer({ onClose }: MaintenanceCreateDr
               </button>
             </div>
             <div className="mt-6 flex-1 overflow-y-auto">
-              <MaintenanceForm onSuccess={onClose} />
             </div>
           </CardContent>
         </Card>

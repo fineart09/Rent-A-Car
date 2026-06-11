@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Calendar, Car, Gauge, Save, Tag, Book, Wrench } from 'lucide-react'
+import { ArrowLeft, Calendar, Gauge, Save, Tag, Book, Wrench } from 'lucide-react'
 import prisma from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -213,7 +213,7 @@ export default async function CarDetailPage({ params }: PageProps) {
                 <div className="flex items-center justify-between gap-4 pb-4">
                   <dt className="font-bold text-slate-500">หมายเหตุ</dt>
                   <dd className="font-extrabold text-slate-950">
-                    <Textarea defaultValue={car.remark} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm resize-none" rows={3} />
+                    <Textarea className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm resize-none" rows={3} />
                   </dd>
                 </div>
               </dl>

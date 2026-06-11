@@ -17,8 +17,7 @@ export default function MaintenanceForm({ onSuccess }: MaintenanceFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    estimatedCost: '',
+    description: ''
   })
 
   const handleChange = (
@@ -44,10 +43,6 @@ export default function MaintenanceForm({ onSuccess }: MaintenanceFormProps) {
     const newErrors: Record<string, string> = {}
     if (!formData.name.trim()) newErrors.name = 'ชื่อการบำรุงรักษาเป็นข้อมูลบังคับ'
     
-    if (formData.estimatedCost && isNaN(parseFloat(formData.estimatedCost))) {
-      newErrors.estimatedCost = 'ค่าประมาณต้องเป็นตัวเลข'
-    }
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
@@ -59,8 +54,7 @@ export default function MaintenanceForm({ onSuccess }: MaintenanceFormProps) {
     try {
       const result = await createMaintenance({
         name: formData.name.trim(),
-        description: formData.description || null,
-        estimatedCost: formData.estimatedCost ? parseFloat(formData.estimatedCost) : null,
+        description: formData.description || null
       })
 
       if (result.success) {
@@ -122,26 +116,6 @@ export default function MaintenanceForm({ onSuccess }: MaintenanceFormProps) {
           />
         </div>
 
-        <div>
-          <Label htmlFor="estimatedCost" className="font-bold text-slate-900">
-            ค่าประมาณ (บาท)
-          </Label>
-          <Input
-            id="estimatedCost"
-            name="estimatedCost"
-            type="number"
-            inputMode="decimal"
-            placeholder="0"
-            min="0"
-            step="0.01"
-            value={formData.estimatedCost}
-            onChange={handleChange}
-            className="mt-2"
-          />
-          {errors.estimatedCost && (
-            <p className="mt-1 text-xs font-medium text-red-600">{errors.estimatedCost}</p>
-          )}
-        </div>
       </section>
 
       <div className="sticky bottom-0 left-0 right-0 border-t border-slate-200 bg-white pt-4">
