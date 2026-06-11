@@ -24,9 +24,13 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@/app/*": ["./src/app/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/components/ui/*": ["./src/components/ui/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/rbac/*": ["./src/lib/rbac/*"],
+      "@/types/*": ["./src/lib/types/*"]
     },
     "plugins": [
       {

@@ -1,6 +1,7 @@
-# Car Rental Admin System (Scaffold)
+# Car Rental Admin System
 
-Minimal scaffold for Car Rental Admin System using Next.js 15, TypeScript, Tailwind, Prisma, Auth.js, and UploadThing.
+Admin dashboard for a car rental application using Next.js 15, TypeScript, Tailwind,
+Prisma, Auth.js, and UploadThing.
 
 Quick start
 
@@ -14,7 +15,7 @@ Quick start
    NEXTAUTH_URL="http://localhost:3000"
    NEXTAUTH_SECRET="<random-secret>"
 
-3. Generate Prisma client and run initial migration
+3. Generate Prisma client and run migrations
 
    npx prisma generate
    npx prisma migrate dev --name init
@@ -26,4 +27,8 @@ Quick start
 Notes
 - Follow project-guideline.md, decision-log.md and prompt-log.md for project process and decisions.
 - Use Conventional Commits for commits.
-- Next steps: integrate Tailwind + shadcn/ui, configure NextAuth, UploadThing, and seed RBAC data.
+- Tailwind, shadcn-style UI primitives, Auth.js credentials login, RBAC shell, dashboard, cars pages, and booking availability draft flow are implemented.
+- Sidebar menus are available for Dashboard, Cars, Bookings, Payments, Maintenance, and Users/RBAC.
+- Booking availability treats `Pending`, `Confirmed`, and `InProgress` bookings as blocking statuses. `Completed`, `Cancelled`, and `Rejected` do not block availability.
+- The new booking draft page is available at `/bookings/new` and supports prefilled car IDs via `?id=` or `?car_id=`.
+- Prisma 7 requires Node 20.19+; use that runtime for lint/build/Prisma validation.

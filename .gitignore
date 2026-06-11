@@ -2,12 +2,15 @@
 node_modules/
 npm-debug.log*
 .next/
+.refactor-backup/
 out/
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.refactor-backup
+.env.production.
 .refactor-backup
 
 # Logs
@@ -36,3 +39,4 @@ coverage/
 
 # Build
 dist/
+tsconfig.tsbuildinfo
