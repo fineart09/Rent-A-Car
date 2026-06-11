@@ -8,6 +8,8 @@ out/
 .env.local
 .env.development.local
 .env.test.local
+.env.production.local
+.refactor-backup
 .env.production.
 .refactor-backup
 
@@ -38,3 +40,7 @@ coverage/
 # Build
 dist/
 tsconfig.tsbuildinfo
+
+#ai
+ai/
+CLAUDE.md
