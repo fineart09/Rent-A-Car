@@ -5,8 +5,9 @@ import { getToken } from 'next-auth/jwt'
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // Allow static files, api/auth, and auth pages
+  // ✅ เพิ่ม pathname === '/signin' เข้าไปในเงื่อนไข เพื่อไม่ให้หน้าล็อกอินโดนรีไดเรกต์วนลูป
   if (
+    pathname === '/signin' ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname.startsWith('/api/auth') ||
@@ -17,6 +18,12 @@ export async function middleware(req: NextRequest) {
   }
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  
+  // 💡 ป้องกันเพิ่มเติม: ถ้ามีโทเคนแล้ว แต่ดันพยายามจะเข้าหน้า /signin ให้เด้งไปหน้าหลัก (เช่น /dashboard)
+  if (token && pathname === '/signin') {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
   if (!token) {
     const signInUrl = new URL('/signin', req.url)
     return NextResponse.redirect(signInUrl)
