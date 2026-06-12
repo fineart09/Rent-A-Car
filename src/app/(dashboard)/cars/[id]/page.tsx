@@ -1,19 +1,16 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { ArrowLeft, Calendar, Car, Gauge, Save, Tag, Book, Wrench } from 'lucide-react'
+import { notFound, redirect } from 'next/navigation'
+import { ArrowLeft, CalendarDays, Car, Save, Sparkles } from 'lucide-react'
 import prisma from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import CarGallery from '@/components/CarGallery'
-import { 
-  // formatCompactNumber, 
-  getStatusBadgeClass, 
-  getStatusLabel, 
-  // toNumber 
-} from '@/lib/ui-format'
+import { getStatusBadgeClass } from '@/lib/ui-format'
+import { updateCar } from '../cars-actions'
+import MaintenanceCreateDrawer, { type MaintenanceRow } from '@/components/MaintenanceCreateDrawer'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import Select from '@/components/ui/select'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,16 +24,11 @@ const carStatuses = [
   { value: 'Maintenance', label: 'บำรุงรักษา' },
   { value: 'Unavailable', label: 'ไม่พร้อมใช้' },
   { value: 'Reserved', label: 'จองสำรอง' },
-]
+] as const
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params
-
-  const car = await prisma.car.findUnique({
-    where: { id, isDeleted: false },
-    include: { brand: true },
-  })
-
+  const car = await prisma.car.findUnique({ where: { id, isDeleted: false }, include: { brand: true } })
   if (!car) return { title: 'Vehicle not found' }
   return { title: `${car.brand.name} ${car.model} | RentCar Admin` }
 }
@@ -44,179 +36,209 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function CarDetailPage({ params }: PageProps) {
   const { id } = await params
 
-  const car = await prisma.car.findUnique({
-    where: {
-      id,
-      isDeleted: false,
-    },
-    include: {
-      brand: true,
-      vehicleType: true,
-      images: {
-        include: {
-          image: true,
-        },
-        orderBy: { number: 'asc' },
+  const [car, vehicleTypes, brands, maintenances] = await Promise.all([
+    prisma.car.findUnique({
+      where: { id, isDeleted: false },
+      include: {
+        brand: true,
+        vehicleType: true,
+        images: { include: { image: true }, orderBy: { number: 'asc' } },
       },
-    },
-  })
+    }),
+    prisma.vehicleType.findMany({ where: { isDeleted: false }, orderBy: { name: 'asc' } }),
+    prisma.brand.findMany({ where: { isDeleted: false }, orderBy: { name: 'asc' } }),
+    prisma.maintenance.findMany({
+      where: { carId: id, isDeleted: false },
+      orderBy: { dateStart: 'desc' },
+    }),
+  ])
 
   if (!car) return notFound()
 
-  const images = car.images.map((carImage) => ({
-    url: carImage.image.url,
-    alt: `${car.brand.name} ${car.model}`,
+  const images = car.images.map((carImage) => ({ url: carImage.image.url, alt: `${car.brand.name} ${car.model}` }))
+  const maintenanceRows: MaintenanceRow[] = maintenances.map((item) => ({
+    id: item.id,
+    type: item.type,
+    name: item.name,
+    description: item.description,
+    remark: item.remark,
+    status: item.status,
+    mileage: item.mileage,
+    mileageTarget: item.mileageTarget,
+    mileageAlert: item.mileageAlert,
+    dateAlert: item.dateAlert ? item.dateAlert.toISOString().slice(0, 10) : null,
+    dateStart: item.dateStart.toISOString().slice(0, 10),
+    dateEnd: item.dateEnd.toISOString().slice(0, 10),
+    dateCount: item.dateCount,
   }))
+
+  async function saveCar(formData: FormData) {
+    'use server'
+
+    const result = await updateCar({
+      carId: id,
+      vehicleTypeId: String(formData.get('vehicleTypeId') ?? ''),
+      brandId: String(formData.get('brandId') ?? ''),
+      model: String(formData.get('model') ?? '').trim(),
+      year: String(formData.get('year') ?? '').trim(),
+      color: String(formData.get('color') ?? '').trim(),
+      license: String(formData.get('license') ?? '').trim(),
+      mileage: Number(formData.get('mileage') ?? 0),
+      status: String(formData.get('status') ?? 'Available') as
+        | 'Available'
+        | 'Booked'
+        | 'Maintenance'
+        | 'Unavailable'
+        | 'Reserved',
+      remark: String(formData.get('remark') ?? '').trim() || null,
+    })
+
+    if (!result.success) {
+      throw new Error(result.error || 'ไม่สามารถบันทึกข้อมูลรถได้')
+    }
+
+    redirect(`/cars/${id}`)
+  }
 
   return (
     <div className="space-y-8">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <Link
-            href="/cars"
-            className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-blue-700"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        <div className="space-y-4">
+          <Link href="/cars" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-700">
+            <ArrowLeft className="h-4 w-4" />
             กลับไปหน้าจัดการรถ
           </Link>
-
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <h1 className="text-4xl font-extrabold tracking-normal text-slate-950">
-              {car.brand.name} {car.model}
-            </h1>
-            <Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge>
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                {car.brand.name} {car.model}
+              </h1>
+              <Badge className={getStatusBadgeClass(car.status)}>{car.status}</Badge>
+            </div>
+            <p className="mt-2 text-base font-medium text-slate-500">ทะเบียน {car.license}</p>
           </div>
-          <p className="mt-3 text-lg font-bold text-slate-500">ทะเบียน {car.license}</p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button asChild>
             <Link href={`/booking/new?id=${car.id}`}>
-              <Book className="h-4 w-4" aria-hidden="true" />
+              <CalendarDays className="h-4 w-4" />
               จองรถคันนี้
             </Link>
           </Button>
-          <Button variant="save" >
-            <Save className="h-4 w-4" aria-hidden="true" />
+          <Button type="submit" form="car-form" variant="save">
+            <Save className="h-4 w-4" />
             บันทึกข้อมูลรถ
           </Button>
         </div>
       </header>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
         <div className="space-y-6">
-          <CarGallery images={images} />
-
-          <Card>
-            <CardContent className="p-6 sm:p-8">
-              <h2 className="text-2xl font-extrabold text-slate-950">รายละเอียดการบำรุงรักษา</h2>
-              
-              <div className="mt-4 rounded-lg bg-slate-50 text-sm font-medium text-slate-500 overflow-auto">
-                <table className="mt-6 w-full table-fixed border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-200 text-left text-sm font-extrabold text-slate-950">
-                      <th className="w-1/3 px-3 py-3">วันที่</th>
-                      <th className="w-1/3 px-3 py-3">ประเภทการบำรุงรักษา</th>
-                      <th className="w-1/3 px-3 py-3">รายละเอียด</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* ตัวอย่างข้อมูลการบำรุงรักษา */}
-                    <tr className="border-b border-slate-200">
-                      <td className="px-3 py-3"><Calendar className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> 2024-05-01</td>
-                      <td className="px-3 py-3"><Tag className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> เปลี่ยนถ่ายน้ำมันเครื่อง</td>
-                      <td className="px-3 py-3"><Gauge className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> เปลี่ยนกรองอากาศ, ตรวจเช็คระบบเบรก</td>
-                    </tr>
-                    <tr className="border-b border-slate-200">
-                      <td className="px-3 py-3"><Calendar className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> 2024-03-15</td>
-                      <td className="px-3 py-3"><Tag className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> ตรวจเช็คสภาพรถ</td>
-                      <td className="px-3 py-3"><Gauge className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> ตรวจเช็คระบบไฟ, ตรวจเช็คยาง</td>
-                    </tr>
-                    <tr className="border-b border-slate-200">
-                      <td className="px-3 py-3"><Calendar className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> 2024-01-10</td>
-                      <td className="px-3 py-3"><Tag className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> ซ่อมแซม</td>
-                      <td className="px-3 py-3"><Wrench className="h-4 w-4 inline-block mr-1" aria-hidden="true" /> ซ่อมแซมระบบแอร์, เปลี่ยนแบตเตอรี่</td>
-                    </tr>
-                  </tbody>
-                </table>
+          <Card className="rounded-xl shadow-sm">
+            <CardContent className="p-6">
+              <div className="mb-4 flex items-center gap-2">
+                <Car className="h-5 w-5 text-blue-700" />
+                <h2 className="text-lg font-bold text-slate-950">รูปภาพรถ</h2>
               </div>
+              {images.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {images.map((image) => (
+                    <div key={image.url} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={image.url} alt={image.alt} className="h-full w-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex min-h-70 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50">
+                  <div className="text-center">
+                    <Car className="mx-auto h-12 w-12 text-slate-300" />
+                    <p className="mt-3 text-sm font-semibold text-slate-500">No images available</p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          <MaintenanceCreateDrawer carId={car.id} maintenances={maintenanceRows} />
         </div>
 
-        <aside className="space-y-6">
-          <Card>
+        <aside>
+          <Card className="rounded-xl shadow-sm">
             <CardContent className="p-6">
-              <h2 className="mt-5 text-2xl font-extrabold text-slate-950">ข้อมูลรถ</h2>
+              <div className="mb-5 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-blue-700" />  
+                <h2 className="text-lg font-bold text-slate-950">ข้อมูลรถ</h2>
+              </div>
 
-              <dl className="mt-6 space-y-4 text-sm">
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                  <dt className="font-bold text-slate-500">ประเภทรถ <span className="text-red-600">*</span></dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <select defaultValue={car.vehicleTypeId} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm">
-                      <option value="">-- เลือกประเภทรถ --</option>
-                      <option value={car.vehicleType.id}>{car.vehicleType.name}</option>
-                    </select>
-                  </dd>
+              <form id="car-form" action={saveCar} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">ประเภทรถ <span className="text-red-600">*</span></label>
+                  <Select name="vehicleTypeId" defaultValue={car.vehicleTypeId} required>
+                    <option value="">-- เลือกประเภทรถ --</option>
+                    {vehicleTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                  <dt className="font-bold text-slate-500">แบรนด์รถ <span className="text-red-600">*</span></dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <select defaultValue={car.brandId} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm">
-                      <option value="">-- เลือกแบรนด์ --</option>
-                      <option value={car.brand.id}>{car.brand.name}</option>
-                    </select>
-                  </dd>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">แบรนด์รถ <span className="text-red-600">*</span></label>
+                  <Select name="brandId" defaultValue={car.brandId} required>
+                    <option value="">-- เลือกแบรนด์ --</option>
+                    {brands.map((brand) => (
+                      <option key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                  <dt className="font-bold text-slate-500">รุ่น</dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <Input defaultValue={car.model} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                  </dd>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">รุ่น <span className="text-red-600">*</span></label>
+                  <Input name="model" defaultValue={car.model} maxLength={100} required />
                 </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                  <dt className="font-bold text-slate-500">ปีที่ผลิต <span className="text-red-600">*</span></dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <Input defaultValue={car.year} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                  </dd>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">ปีที่ผลิต <span className="text-red-600">*</span></label>
+                  <Input name="year" defaultValue={car.year} maxLength={4} inputMode="numeric" required />
                 </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                  <dt className="font-bold text-slate-500">สีรถ</dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <Input defaultValue={car.color} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                  </dd>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">สีรถ <span className="text-red-600">*</span></label>
+                  <Input name="color" defaultValue={car.color} maxLength={50} required />
                 </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                  <dt className="font-bold text-slate-500">ทะเบียน <span className="text-red-600">*</span></dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <Input defaultValue={car.license} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                  </dd>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">ทะเบียน <span className="text-red-600">*</span></label>
+                  <Input name="license" defaultValue={car.license} maxLength={20} required />
                 </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                  <dt className="font-bold text-slate-500">เลขไมล์</dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <Input type='number' defaultValue={car.mileage} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                  </dd>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">เลขไมล์</label>
+                  <Input name="mileage" type="number" step="0.01" min="0" defaultValue={car.mileage} />
                 </div>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                  <dt className="font-bold text-slate-500">สถานะ</dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <select defaultValue={car.status} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm">
-                      {carStatuses.map((status) => (
-                        <option key={status.value} value={status.value}>
-                          {status.label}
-                        </option>
-                      ))}
-                    </select>
-                  </dd>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">สถานะ <span className="text-red-600">*</span></label>
+                  <Select name="status" defaultValue={car.status} required>
+                    {carStatuses.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
-                <div className="flex items-center justify-between gap-4 pb-4">
-                  <dt className="font-bold text-slate-500">หมายเหตุ</dt>
-                  <dd className="font-extrabold text-slate-950">
-                    <Textarea defaultValue={car.remark} className="w-full min-[200px]:w-50 rounded-lg border border-slate-300 px-3 py-2 text-sm resize-none" rows={3} />
-                  </dd>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">หมายเหตุ</label>
+                  <Textarea name="remark" defaultValue={car.remark ?? ''} maxLength={500} rows={4} />
                 </div>
-              </dl>
+
+              </form>
             </CardContent>
           </Card>
         </aside>

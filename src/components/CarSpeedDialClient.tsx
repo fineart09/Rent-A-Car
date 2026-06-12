@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import CarCreateDrawer from '@/components/CarCreateDrawer'
 import BrandCreateDrawer from '@/components/BrandCreateDrawer'
 import VehicleTypeCreateDrawer from '@/components/VehicleTypeCreateDrawer'
-import MaintenanceCreateModal from '@/components/MaintenanceCreateDrawer'
+import MaintenanceCreateDrawer, { type MaintenanceRow } from '@/components/MaintenanceCreateDrawer'
 
 interface VehicleType {
   id: string
@@ -20,9 +20,15 @@ interface Brand {
   name: string
 }
 
+interface CarOption {
+  id: string
+  label: string
+}
+
 interface CarSpeedDialProps {
   vehicleTypes: VehicleType[]
   brands: Brand[]
+  cars: CarOption[]
 }
 
 type SpeedDialItem = {
@@ -60,7 +66,7 @@ const items: SpeedDialItem[] = [
   },
 ]
 
-export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps) {
+export default function CarSpeedDial({ vehicleTypes, brands, cars }: CarSpeedDialProps) {
   const [open, setOpen] = useState(false)
   const [showCarModal, setShowCarModal] = useState(false)
   const [showBrandModal, setShowBrandModal] = useState(false)
@@ -108,7 +114,11 @@ export default function CarSpeedDial({ vehicleTypes, brands }: CarSpeedDialProps
       )}
       
       {showMaintenanceModal && (
-        <MaintenanceCreateModal 
+        <MaintenanceCreateDrawer
+          variant="modal"
+          showList={false}
+          carOptions={cars}
+          maintenances={[] as MaintenanceRow[]}
           onClose={() => setShowMaintenanceModal(false)}
         />
       )}
