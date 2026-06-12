@@ -37,7 +37,7 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-slate-50 px-4 py-10">
+    <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-50 via-white to-slate-50 px-4 py-10">
       <section className="w-full max-w-md rounded-2xl border border-white/80 bg-white px-8 py-9 shadow-lg shadow-slate-200/70">
         <div className="flex flex-col items-center text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-700 text-white shadow-md shadow-blue-700/20">

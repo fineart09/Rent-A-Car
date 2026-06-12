@@ -43,7 +43,7 @@ export default async function ProductsPage() {
         <CardContent className="p-6 sm:p-8">
           <h2 className="text-2xl font-extrabold text-slate-950">รายการล่าสุด</h2>
           <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[860px] text-left">
+            <table className="w-full min-w-215 text-left">
               <thead>
                 <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
                   <th className="px-3 py-3">ชื่อ</th>
