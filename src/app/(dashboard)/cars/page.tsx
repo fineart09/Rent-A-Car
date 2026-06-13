@@ -16,7 +16,13 @@ import SpeedDialContainer from '@/components/SpeedDialContainer'
 
 export const dynamic = 'force-dynamic'
 
-const carStatuses = ['Available', 'Booked', 'Maintenance', 'Unavailable', 'Reserved'] as const
+const carStatuses = [
+  { value: 'Available', label: 'พร้อมให้เช่า' },
+  { value: 'Booked', label: 'จองแล้ว' },
+  { value: 'Maintenance', label: 'บำรุงรักษา' },
+  { value: 'Unavailable', label: 'ไม่พร้อมใช้' },
+  { value: 'Reserved', label: 'จองสำรอง' },
+] as const
 
 type CarsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
@@ -26,7 +32,7 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
   const params = (await searchParams) ?? {}
   const q = typeof params.q === 'string' ? params.q.trim() : ''
   const statusParam = typeof params.status === 'string' ? params.status : ''
-  const status = carStatuses.includes(statusParam as (typeof carStatuses)[number]) ? statusParam : ''
+  const status = carStatuses.find(status => status.value === statusParam)?.value ?? ''
   const brand = typeof params.brand === 'string' ? params.brand.trim() : ''
   const vehicleType = typeof params.vehicleType === 'string' ? params.vehicleType.trim() : ''
   const sort = typeof params.sort === 'string' ? params.sort : 'newest'
@@ -109,8 +115,8 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
         <Select name="status" defaultValue={status}>
           <option value="">ทุกสถานะ</option>
           {carStatuses.map((carStatus) => (
-            <option key={carStatus} value={carStatus}>
-              {getStatusLabel(carStatus)}
+            <option key={carStatus.value} value={carStatus.value}>
+              {carStatus.label}
             </option>
           ))}
         </Select>
@@ -178,7 +184,7 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
                           </Button>
                           <Button asChild size={"sm"} variant="destructive">
                             <Link href={`/cars/${car.id}`}>
-                            <Trash className="size-4 text-red-500" />
+                              <Trash className="size-4 text-red-500" />
                             </Link>
                           </Button>
                         </div>

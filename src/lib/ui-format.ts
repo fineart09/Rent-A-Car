@@ -50,22 +50,22 @@ export function formatThaiDate(value?: Date | string | null) {
 
 export function getStatusLabel(status?: string | null) {
   const labels: Record<string, string> = {
-    Available: "Available",
-    Booked: "Booked",
-    Maintenance: "Maintenance",
-    Unavailable: "Unavailable",
-    Reserved: "Reserved",
-    Pending: "Pending",
-    Confirmed: "Active",
-    InProgress: "Active",
-    Completed: "Completed",
-    Cancelled: "Cancelled",
-    Rejected: "Rejected",
-    Paid: "Paid",
-    Failed: "Failed",
-    Refunded: "Refunded",
-    Active: "Active",
-    Complete: "Completed",
+    Available: "พร้อมให้เช่า",
+    Booked: "จองแล้ว",
+    Maintenance: "บำรุงรักษา",
+    Unavailable: "ไม่พร้อมใช้",
+    Reserved: "จองสำรอง",
+    Pending: "รอดำเนินการ",
+    Confirmed: "กำลังดำเนินการ",
+    InProgress: "กำลังดำเนินการ",
+    Completed: "เสร็จสิ้น",
+    Cancelled: "ยกเลิก",
+    Rejected: "ปฏิเสธ",
+    Paid: "ชำระเงินแล้ว",
+    Failed: "ล้มเหลว",
+    Refunded: "คืนเงิน",
+    Active: "ใช้งาน",
+    Complete: "เสร็จสิ้น",
   };
 
   return status ? labels[status] ?? status : "Unknown";

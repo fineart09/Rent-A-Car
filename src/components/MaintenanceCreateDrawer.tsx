@@ -13,7 +13,20 @@ import { createMaintenance, deleteMaintenance, updateMaintenance } from '@/app/(
 import { AlertDialogDestructive } from '@/components/AlertDialogDestructive'
 
 type MaintenanceType = 'Maintenance' | 'Tax' | 'Insurance'
+
+const MaintenanceType = [
+  { value: 'Maintenance', label: 'บำรุงรักษา' },
+  { value: 'Tax', label: 'ภาษี' },
+  { value: 'Insurance', label: 'ประกันภัย' },
+] as const
+
 type MaintenanceStatus = 'Pending' | 'Active' | 'Complete'
+
+const MaintenanceStatus = [
+  { value: 'Pending', label: 'รอดำเนินการ' },
+  { value: 'Active', label: 'กำลังดำเนินการ' },
+  { value: 'Complete', label: 'เสร็จสิ้น' },
+] as const
 
 export type MaintenanceRow = {
   id: string
@@ -288,7 +301,7 @@ export default function MaintenanceCreateDrawer({
                           {row.remark ? <span className="text-slate-500"> - {row.remark}</span> : null}
                         </td>
                         <td className="px-4 py-3">
-                          <Badge className={statusClass(row.status)}>{row.status}</Badge>
+                          <Badge className={statusClass(row.status)}>{MaintenanceStatus.find(status => status.value === row.status)?.label}</Badge>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex gap-2">
@@ -347,14 +360,29 @@ export default function MaintenanceCreateDrawer({
                 </div>
               ) : null}
 
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">ประเภทงาน <span className="text-red-600">*</span></label>
-                <Select name="type" value={formData.type} onChange={handleChange} required>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Tax">Tax</option>
-                  <option value="Insurance">Insurance</option>
-                </Select>
-                {errors.type ? <p className="text-xs text-red-600">{errors.type}</p> : null}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">ประเภทงาน <span className="text-red-600">*</span></label>
+                  <Select name="type" value={formData.type} onChange={handleChange} required>
+                    {MaintenanceType.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </Select>
+                  {errors.type ? <p className="text-xs text-red-600">{errors.type}</p> : null}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">สถานะ <span className="text-red-600">*</span></label>
+                  <Select name="status" value={formData.status} onChange={handleStatusChange} required>
+                    {MaintenanceStatus.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </Select>
+                  {errors.status ? <p className="text-xs text-red-600">{errors.status}</p> : null}
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700">ชื่อรายการ <span className="text-red-600">*</span></label>
@@ -364,19 +392,6 @@ export default function MaintenanceCreateDrawer({
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700">รายละเอียด</label>
                 <Input name="description" value={formData.description} onChange={handleChange} maxLength={255} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">หมายเหตุ</label>
-                <Textarea name="remark" value={formData.remark} onChange={handleChange} maxLength={500} rows={3} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">สถานะ <span className="text-red-600">*</span></label>
-                <Select name="status" value={formData.status} onChange={handleStatusChange} required>
-                  <option value="Pending">Panding</option>
-                  <option value="Active">Active</option>
-                  <option value="Complete">Complete</option>
-                </Select>
-                {errors.status ? <p className="text-xs text-red-600">{errors.status}</p> : null}
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -405,10 +420,14 @@ export default function MaintenanceCreateDrawer({
                   <Input name="dateEnd" type="date" value={formData.dateEnd} onChange={handleChange} required />
                   {errors.dateEnd ? <p className="text-xs text-red-600">{errors.dateEnd}</p> : null}
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">จำนวนวัน</label>
-                  <Input name="dateCount" type="number" min="0" value={formData.dateCount} onChange={handleChange} readOnly />
-                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">จำนวนวัน</label>
+                <Input name="dateCount" type="number" min="0" value={formData.dateCount} onChange={handleChange} readOnly />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">หมายเหตุ</label>
+                <Textarea name="remark" value={formData.remark} onChange={handleChange} maxLength={500} rows={3} />
               </div>
 
               <div className="flex gap-3 border-t border-slate-200 pt-4">

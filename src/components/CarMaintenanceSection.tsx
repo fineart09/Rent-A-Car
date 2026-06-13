@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Plus, Settings2, Trash2, X } from 'lucide-react'
+import { Edit, Plus, Settings2, Trash, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -261,7 +261,7 @@ export default function CarMaintenanceSection({
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button type="button" size="icon-sm" variant="destructive" onClick={() => handleDelete(row.id)}>
-                              <Trash2 className="h-4 w-4" />
+                              <Trash className="h-4 w-4" />
                             </Button>
                           </div>
                         </td>

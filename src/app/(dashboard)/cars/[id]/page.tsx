@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { getStatusBadgeClass } from '@/lib/ui-format'
+import { getStatusBadgeClass, getStatusLabel } from '@/lib/ui-format'
 import { updateCar } from '../cars-actions'
 import MaintenanceCreateDrawer, { type MaintenanceRow } from '@/components/MaintenanceCreateDrawer'
 import { Input } from '@/components/ui/input'
@@ -113,7 +113,7 @@ export default async function CarDetailPage({ params }: PageProps) {
               <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
                 {car.brand.name} {car.model}
               </h1>
-              <Badge className={getStatusBadgeClass(car.status)}>{car.status}</Badge>
+              <Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge>
             </div>
             <p className="mt-2 text-base font-medium text-slate-500">ทะเบียน {car.license}</p>
           </div>
