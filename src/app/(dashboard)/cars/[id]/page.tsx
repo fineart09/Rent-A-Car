@@ -144,7 +144,7 @@ export default async function CarDetailPage({ params }: PageProps) {
               {images.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                   {images.map((image) => (
-                    <div key={image.url} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100">
+                    <div key={image.url} className="relative aspect-4/3 overflow-hidden rounded-xl bg-slate-100">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={image.url} alt={image.alt} className="h-full w-full object-cover" />
                     </div>
