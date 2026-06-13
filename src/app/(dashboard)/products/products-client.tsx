@@ -140,7 +140,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
       } else if (next.is_active === false && next.date_end >= toDateInputValue(new Date().toISOString())) {
         next.is_active = true
       }
-      
+
       return next
     })
   }
@@ -237,8 +237,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
         <CardContent className="p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-extrabold text-slate-950">รายการโปรโมชั่น</h2>
-              <p className="mt-1 text-sm font-semibold text-slate-500">แสดงเฉพาะรายการที่ยังไม่ถูกลบ</p>
+              <h2 className="text-2xl font-extrabold text-slate-950">รายการล่าสุด</h2>
             </div>
           </div>
 
