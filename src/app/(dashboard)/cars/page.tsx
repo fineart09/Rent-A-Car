@@ -16,7 +16,13 @@ import SpeedDialContainer from '@/components/SpeedDialContainer'
 
 export const dynamic = 'force-dynamic'
 
-const carStatuses = ['Available', 'Booked', 'Maintenance', 'Unavailable', 'Reserved'] as const
+const carStatuses = [
+  { value: 'Available', label: 'พร้อมให้เช่า' },
+  { value: 'Booked', label: 'จองแล้ว' },
+  { value: 'Maintenance', label: 'บำรุงรักษา' },
+  { value: 'Unavailable', label: 'ไม่พร้อมใช้' },
+  { value: 'Reserved', label: 'จองสำรอง' },
+] as const
 
 type CarsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
@@ -26,7 +32,7 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
   const params = (await searchParams) ?? {}
   const q = typeof params.q === 'string' ? params.q.trim() : ''
   const statusParam = typeof params.status === 'string' ? params.status : ''
-  const status = carStatuses.includes(statusParam as (typeof carStatuses)[number]) ? statusParam : ''
+  const status = carStatuses.find(status => status.value === statusParam)?.value ?? ''
   const brand = typeof params.brand === 'string' ? params.brand.trim() : ''
   const vehicleType = typeof params.vehicleType === 'string' ? params.vehicleType.trim() : ''
   const sort = typeof params.sort === 'string' ? params.sort : 'newest'
@@ -109,8 +115,8 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
         <Select name="status" defaultValue={status}>
           <option value="">ทุกสถานะ</option>
           {carStatuses.map((carStatus) => (
-            <option key={carStatus} value={carStatus}>
-              {getStatusLabel(carStatus)}
+            <option key={carStatus.value} value={carStatus.value}>
+              {carStatus.label}
             </option>
           ))}
         </Select>
@@ -144,50 +150,58 @@ export default async function CarsPage({ searchParams }: CarsPageProps) {
 
       {cars.length > 0 && (
         <Card>
-          <CardContent className="py-14 text-center overflow-auto">
-            <table className="mx-auto w-full text-left">
-              <thead>
-                <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
-                  <th className="px-3 py-3">ยี่ห้อ/รุ่น</th>
-                  <th className="px-3 py-3">ปี</th>
-                  <th className="px-3 py-3">ทะเบียน</th>
-                  <th className="px-3 py-3">สี</th>
-                  <th className="px-3 py-3">ประเภท</th>
-                  <th className="px-3 py-3 text-right">เลขไมล์</th>
-                  <th className="px-3 py-3">สถานะ</th>
-                  <th className='px-3 py-3 text-right'>จัดการ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cars.map((car) => {
-                  return (
-                    <tr key={car.id} className="border-b border-slate-200">
-                      <td className="px-3 py-3">{car.brand.name} {car.model}</td>
-                      <td className="px-3 py-3">{car.year}</td>
-                      <td className="px-3 py-3">{car.license}</td>
-                      <td className="px-3 py-3">{car.color}</td>
-                      <td className="px-3 py-3">{car.vehicleType.name}</td>
-                      <td className="px-3 py-3 text-right">{formatCompactNumber(toNumber(car.mileage))}</td>
-                      <td className="px-3 py-3"><Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge></td>
-                      <td className='px-3 py-3 text-right'>
-                        <div className="flex justify-end gap-2">
-                          <Button asChild size={"sm"} variant="ghost">
-                            <Link href={`/cars/${car.id}`}>
-                              <Edit className="size-4" />
-                            </Link>
-                          </Button>
-                          <Button asChild size={"sm"} variant="destructive">
-                            <Link href={`/cars/${car.id}`}>
-                            <Trash className="size-4 text-red-500" />
-                            </Link>
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-extrabold text-slate-950">รายการล่าสุด</h2>
+              </div>
+            </div>
+
+            <div className="mt-6 overflow-x-auto">
+              <table className="w-full min-w-245 text-left">
+                <thead>
+                  <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
+                    <th className="px-3 py-3">ยี่ห้อ/รุ่น</th>
+                    <th className="px-3 py-3">ปี</th>
+                    <th className="px-3 py-3">ทะเบียน</th>
+                    <th className="px-3 py-3">สี</th>
+                    <th className="px-3 py-3">ประเภท</th>
+                    <th className="px-3 py-3 text-right">เลขไมล์</th>
+                    <th className="px-3 py-3">สถานะ</th>
+                    <th className='px-3 py-3 text-right'>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cars.map((car) => {
+                    return (
+                      <tr key={car.id} className="border-b border-slate-200">
+                        <td className="px-3 py-3">{car.brand.name} {car.model}</td>
+                        <td className="px-3 py-3">{car.year}</td>
+                        <td className="px-3 py-3">{car.license}</td>
+                        <td className="px-3 py-3">{car.color}</td>
+                        <td className="px-3 py-3">{car.vehicleType.name}</td>
+                        <td className="px-3 py-3 text-right">{formatCompactNumber(toNumber(car.mileage))}</td>
+                        <td className="px-3 py-3"><Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge></td>
+                        <td className='px-3 py-3 text-right'>
+                          <div className="flex justify-end gap-2">
+                            <Button asChild size={"sm"} variant="ghost">
+                              <Link href={`/cars/${car.id}`}>
+                                <Edit className="size-4" />
+                              </Link>
+                            </Button>
+                            <Button asChild size={"sm"} variant="destructive">
+                              <Link href={`/cars/${car.id}`}>
+                                <Trash className="size-4 text-red-500" />
+                              </Link>
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
       )}

@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Wrench, Settings2, X } from 'lucide-react'
+import { Edit, Plus, Settings2, Trash, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -10,23 +10,9 @@ import { Textarea } from '@/components/ui/textarea'
 import Select from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { createMaintenance, deleteMaintenance, updateMaintenance } from '@/app/(dashboard)/cars/maintenance-actions'
-import { AlertDialogDestructive } from '@/components/AlertDialogDestructive'
 
 type MaintenanceType = 'Maintenance' | 'Tax' | 'Insurance'
-
-const MaintenanceType = [
-  { value: 'Maintenance', label: 'บำรุงรักษา' },
-  { value: 'Tax', label: 'ภาษี' },
-  { value: 'Insurance', label: 'ประกันภัย' },
-] as const
-
 type MaintenanceStatus = 'Pending' | 'Active' | 'Complete'
-
-const MaintenanceStatus = [
-  { value: 'Pending', label: 'รอดำเนินการ' },
-  { value: 'Active', label: 'กำลังดำเนินการ' },
-  { value: 'Complete', label: 'เสร็จสิ้น' },
-] as const
 
 export type MaintenanceRow = {
   id: string
@@ -44,13 +30,13 @@ export type MaintenanceRow = {
   dateCount: number
 }
 
-type  MaintenanceProps = {
+type Props = {
   carId?: string
   carOptions?: Array<{ id: string; label: string }>
   maintenances: MaintenanceRow[]
   variant?: 'page' | 'modal'
   showList?: boolean
-  onClose?: () => void
+  onClose: () => void
 }
 
 const emptyForm = {
@@ -66,7 +52,7 @@ const emptyForm = {
   dateAlert: '',
   dateStart: '',
   dateEnd: '',
-  dateCount: 0,
+  dateCount: '0',
 }
 
 function statusClass(status: MaintenanceStatus) {
@@ -75,14 +61,14 @@ function statusClass(status: MaintenanceStatus) {
   return 'bg-amber-100 text-amber-700'
 }
 
-export default function MaintenanceCreateDrawer({
+export default function CarMaintenanceSection({
   carId,
   carOptions = [],
   maintenances,
   variant = 'page',
   showList = true,
   onClose,
-}: MaintenanceProps) {
+}: Props) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(variant === 'modal')
   const [isPending, startTransition] = useTransition()
@@ -98,32 +84,7 @@ export default function MaintenanceCreateDrawer({
     handleClose(true)
   }
 
-  function calculateDateCount(startStr: string, endStr: string): number {
-    if (!startStr || !endStr) return 0;
-  
-    const startDate = new Date(startStr);
-    const endDate = new Date(endStr);
-  
-    if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-      const timeDiff = endDate.getTime() - startDate.getTime();
-      const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-      
-      return dayDiff >= 0 ? dayDiff : 0;
-    }
-    
-    return 0;
-  };
-  
-  const formatDateString = (dateInput: any) => {
-    if (!dateInput) return '';
-    const d = new Date(dateInput);
-    return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
-  };
-  
   const openEdit = (row: MaintenanceRow) => {
-    const formattedStart = formatDateString(row.dateStart);
-    const formattedEnd = formatDateString(row.dateEnd);
-
     setFormData({
       maintenanceId: row.id,
       type: row.type ?? 'Maintenance',
@@ -135,29 +96,19 @@ export default function MaintenanceCreateDrawer({
       mileageTarget: String(row.mileageTarget ?? 0),
       mileageAlert: String(row.mileageAlert ?? 0),
       dateAlert: row.dateAlert ?? '',
-      dateStart: formattedStart,
-      dateEnd: formattedEnd,
-      dateCount: Number(calculateDateCount(formattedStart, formattedEnd) ?? 0),
+      dateStart: row.dateStart,
+      dateEnd: row.dateEnd,
+      dateCount: String(row.dateCount ?? 0),
     })
     setSelectedCarId(carId ?? '')
-    setIsOpen(true)
+    handleClose(true)
   }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
-    
-    setFormData((prev) => {
-      const updatedForm = { ...prev, [name]: value };
-  
-      if (name === 'dateStart' || name === 'dateEnd') {
-        updatedForm.dateCount = calculateDateCount(updatedForm.dateStart, updatedForm.dateEnd);
-      }
-  
-      return updatedForm;
-    });
-
+    setFormData((prev) => ({ ...prev, [name]: value }))
     setErrors((prev) => {
       if (!prev[name]) return prev
       const next = { ...prev }
@@ -202,8 +153,6 @@ export default function MaintenanceCreateDrawer({
 
     setErrors({})
     startTransition(async () => {
-      const formattedStart = formatDateString(formData.dateStart);
-      const formattedEnd = formatDateString(formData.dateEnd);
       const payload = {
         carId: selectedCarId || carId || '',
         maintenanceId: formData.maintenanceId || undefined,
@@ -216,9 +165,9 @@ export default function MaintenanceCreateDrawer({
         mileageTarget: Number(formData.mileageTarget || 0),
         mileageAlert: Number(formData.mileageAlert || 0),
         dateAlert: formData.dateAlert || null,
-        dateStart: formattedStart,
-        dateEnd: formattedEnd,
-        dateCount: Number(calculateDateCount(formattedStart, formattedEnd) || 0),
+        dateStart: formData.dateStart,
+        dateEnd: formData.dateEnd,
+        dateCount: Number(formData.dateCount || 0),
       }
       const result = formData.maintenanceId
         ? await updateMaintenance(payload)
@@ -235,6 +184,9 @@ export default function MaintenanceCreateDrawer({
   }
 
   const handleDelete = (maintenanceId: string) => {
+    const confirmed = window.confirm('ยืนยันการลบรายการบำรุงรักษานี้หรือไม่')
+    if (!confirmed) return
+
     startTransition(async () => {
       const result = await deleteMaintenance(maintenanceId)
       if (!result.success) {
@@ -270,8 +222,8 @@ export default function MaintenanceCreateDrawer({
                 <Settings2 className="h-5 w-5 text-blue-700" />
                 <h2 className="text-lg font-bold text-slate-950">ประวัติการบำรุงรักษา</h2>
               </div>
-              <Button type="button" onClick={openCreate} className="flex items-center gap-1">
-                <Wrench className="h-4 w-4" />
+              <Button type="button" onClick={openCreate}>
+                <Plus className="h-4 w-4" />
                 สร้างการบำรุงรักษา
               </Button>
             </div>
@@ -301,14 +253,16 @@ export default function MaintenanceCreateDrawer({
                           {row.remark ? <span className="text-slate-500"> - {row.remark}</span> : null}
                         </td>
                         <td className="px-4 py-3">
-                          <Badge className={statusClass(row.status)}>{MaintenanceStatus.find(status => status.value === row.status)?.label}</Badge>
+                          <Badge className={statusClass(row.status)}>{row.status}</Badge>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex gap-2">
                             <Button type="button" size="icon-sm" variant="outline" onClick={() => openEdit(row)}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <AlertDialogDestructive onClick={() => handleDelete(row.id)} />
+                            <Button type="button" size="icon-sm" variant="destructive" onClick={() => handleDelete(row.id)}>
+                              <Trash className="h-4 w-4" />
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -331,8 +285,8 @@ export default function MaintenanceCreateDrawer({
       ) : null}
 
       {isOpen ? (
-        <div className="fixed inset-0 z-50 my-0">
-          <button type="button" className="absolute inset-0 bg-slate-950/30 my-0" onClick={() => handleClose(false)} />
+        <div className="fixed inset-0 z-50">
+          <button type="button" className="absolute inset-0 bg-slate-950/30" onClick={() => handleClose(false)} />
           <aside className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto bg-white shadow-2xl">
             <div className="flex items-start justify-between border-b border-slate-200 p-6">
               <div>
@@ -360,29 +314,14 @@ export default function MaintenanceCreateDrawer({
                 </div>
               ) : null}
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">ประเภทงาน <span className="text-red-600">*</span></label>
-                  <Select name="type" value={formData.type} onChange={handleChange} required>
-                    {MaintenanceType.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </Select>
-                  {errors.type ? <p className="text-xs text-red-600">{errors.type}</p> : null}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">สถานะ <span className="text-red-600">*</span></label>
-                  <Select name="status" value={formData.status} onChange={handleStatusChange} required>
-                    {MaintenanceStatus.map((status) => (
-                      <option key={status.value} value={status.value}>
-                        {status.label}
-                      </option>
-                    ))}
-                  </Select>
-                  {errors.status ? <p className="text-xs text-red-600">{errors.status}</p> : null}
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">ประเภทงาน <span className="text-red-600">*</span></label>
+                <Select name="type" value={formData.type} onChange={handleChange} required>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Tax">Tax</option>
+                  <option value="Insurance">Insurance</option>
+                </Select>
+                {errors.type ? <p className="text-xs text-red-600">{errors.type}</p> : null}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700">ชื่อรายการ <span className="text-red-600">*</span></label>
@@ -392,6 +331,19 @@ export default function MaintenanceCreateDrawer({
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700">รายละเอียด</label>
                 <Input name="description" value={formData.description} onChange={handleChange} maxLength={255} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">หมายเหตุ</label>
+                <Textarea name="remark" value={formData.remark} onChange={handleChange} maxLength={500} rows={3} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700">สถานะ <span className="text-red-600">*</span></label>
+                <Select name="status" value={formData.status} onChange={handleStatusChange} required>
+                  <option value="Pending">Panding</option>
+                  <option value="Active">Active</option>
+                  <option value="Complete">Complete</option>
+                </Select>
+                {errors.status ? <p className="text-xs text-red-600">{errors.status}</p> : null}
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
@@ -420,14 +372,10 @@ export default function MaintenanceCreateDrawer({
                   <Input name="dateEnd" type="date" value={formData.dateEnd} onChange={handleChange} required />
                   {errors.dateEnd ? <p className="text-xs text-red-600">{errors.dateEnd}</p> : null}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">จำนวนวัน</label>
-                <Input name="dateCount" type="number" min="0" value={formData.dateCount} onChange={handleChange} readOnly />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">หมายเหตุ</label>
-                <Textarea name="remark" value={formData.remark} onChange={handleChange} maxLength={500} rows={3} />
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700">จำนวนวัน</label>
+                  <Input name="dateCount" type="number" min="0" value={formData.dateCount} onChange={handleChange} />
+                </div>
               </div>
 
               <div className="flex gap-3 border-t border-slate-200 pt-4">

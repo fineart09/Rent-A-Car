@@ -4,7 +4,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 const connectionString = process.env.DATABASE_URL
 
 if (!connectionString) {
-  throw new Error('DATABASE_URL is required to initialize PrismaClient')
+  throw new Error('PrismaClient is required a connection string. Please set the DATABASE_URL environment variable.')
 }
 
 const createPrismaClient = () =>

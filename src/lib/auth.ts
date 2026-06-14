@@ -1,4 +1,3 @@
-// src/auth.ts (หรือสร้างไว้ที่ src/lib/auth.ts แล้วแต่โครงสร้างโปรเจกต์ของคุณ)
 import { scryptSync, timingSafeEqual } from 'node:crypto';
 import NextAuth, { type NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -36,22 +35,28 @@ export const authConfig: NextAuthConfig = {
         const identifier = username || email;
         if (!identifier || !password) return null;
 
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [{ userName: identifier }, { email: identifier }],
-          },
-          include: { roles: { include: { role: true } } },
-        });
+        try {
+          const user = await prisma.user.findFirst({
+            where: {
+              OR: [{ userName: identifier }, { email: identifier }],
+            },
+            include: { roles: { include: { role: true } } },
+          });
+  
+          if (!user || !verifyPassword(password, user.hashedPassword)) return null;
+  
+          return {
+            id: user.id,
+            email: user.email,
+            phone: user.phone,
+            name: `${user.firstName} ${user.lastName}`,
+            roles: user.roles.map((userRole) => userRole.role.code),
+          };
+        } catch (error) {
+          console.error('Error during authentication:', error);
 
-        if (!user || !verifyPassword(password, user.hashedPassword)) return null;
-
-        return {
-          id: user.id,
-          email: user.email,
-          phone: user.phone,
-          name: `${user.firstName} ${user.lastName}`,
-          roles: user.roles.map((userRole) => userRole.role.code),
-        };
+          throw new Error('An error occurred during authentication. Please try again later.');
+        }
       },
     }),
   ],
