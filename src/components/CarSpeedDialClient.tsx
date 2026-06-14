@@ -41,25 +41,25 @@ type SpeedDialItem = {
 
 const items: SpeedDialItem[] = [
   { 
-    title: 'สร้างรถ', 
+    title: 'เพิ่มรถ', 
     description: '', 
     key: 'cars', 
     icon: Car,
   },
   {
-    title: 'สร้างประเภทรถ',
+    title: 'เพิ่มประเภทรถ',
     description: '',
     key: 'vehicle-types',
     icon: Shapes,
   },
   { 
-    title: 'สร้างแบรนด์รถ', 
+    title: 'เพิ่มแบรนด์รถ', 
     description: '', 
     key: 'brands', 
     icon: BadgePlus,
   },
   {
-    title: 'สร้างการบำรุงรักษา',
+    title: 'เพิ่มการบำรุงรักษา',
     description: '',
     key: 'maintenance',
     icon: Wrench,

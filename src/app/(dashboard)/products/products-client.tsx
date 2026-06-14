@@ -310,7 +310,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="text-2xl font-extrabold text-slate-950">
-                      {editingProduct ? 'แก้ไขบริการ/โปรโมชั่น' : 'สร้างบริการ/โปรโมชั่น'}
+                      {editingProduct ? 'แก้ไขบริการ/โปรโมชั่น' : 'เพิ่มบริการ/โปรโมชั่น'}
                     </h3>
                     <p className="mt-2 text-sm font-medium text-slate-500">
                       กรอกข้อมูลบริการ/โปรโมชั่นเพื่อเพิ่มเข้าระบบ
@@ -407,7 +407,7 @@ export default function ProductsClient({ initialProducts }: { initialProducts: P
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-slate-600 shadow-sm transition group-hover:bg-white group-hover:text-violet-700">
                 <Ticket className="h-5 w-5" aria-hidden="true" />
               </div>
-              <div className="truncate text-sm font-bold text-slate-900">สร้างบริการ/โปรโมชั่น</div>
+              <div className="truncate text-sm font-bold text-slate-900">เพิ่มบริการ/โปรโมชั่น</div>
             </button>
           </>
         )}

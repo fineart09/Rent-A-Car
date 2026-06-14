@@ -92,7 +92,7 @@ export default function MaintenanceCreateDrawer({
 
   const isEdit = Boolean(formData.maintenanceId)
 
-  const title = useMemo(() => (isEdit ? 'แก้ไขการบำรุงรักษา' : 'สร้างการบำรุงรักษา'), [isEdit])
+  const title = useMemo(() => (isEdit ? 'แก้ไขการบำรุงรักษา' : 'เพิ่มการบำรุงรักษา'), [isEdit])
 
   const openCreate = () => {
     handleClose(true)
@@ -272,7 +272,7 @@ export default function MaintenanceCreateDrawer({
               </div>
               <Button type="button" onClick={openCreate} className="flex items-center gap-1">
                 <Wrench className="h-4 w-4" />
-                สร้างการบำรุงรักษา
+                เพิ่มการบำรุงรักษา
               </Button>
             </div>
 
