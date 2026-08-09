@@ -50,7 +50,7 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
                 <Car aria-hidden="true" />
               </div>
               <div className="group-data-[collapsible=icon]:hidden">
-                <div className="font-bold leading-tight">RentCar Admin</div>
+                <div className="font-bold leading-tight">Car Siam Auto Admin</div>
                 <div className="mt-0.5 text-sm font-semibold text-[#F4E7B0]">ระบบจัดการเช่ารถ</div>
               </div>
             </div>

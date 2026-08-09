@@ -4,7 +4,7 @@ import Providers from "@/components/Providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "RentCar Admin",
+  title: "Car Siam Auto Admin",
   description: "ระบบจัดการเช่ารถ",
 };
 
