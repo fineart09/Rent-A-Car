@@ -25,7 +25,23 @@ export type MenuFormItem = {
   isExternal: boolean
 }
 
-export const settingMenuPathPrefix = '/setting'
+export const dashboardPathPrefix = '/dashboard'
+export const settingMenuPathPrefix = '/dashboard/setting'
+
+export function normalizeDashboardPath(path: string) {
+  if (!path) return path
+  if (path.startsWith('/api')) return path
+  if (path === dashboardPathPrefix || path.startsWith(`${dashboardPathPrefix}/`)) return path
+  if (path.startsWith('/')) return `${dashboardPathPrefix}${path}`
+  return `${dashboardPathPrefix}/${path}`
+}
+
+export function isMenuActive(pathname: string, href: string) {
+  if (!pathname || !href) return false
+  if (pathname === href) return true
+  if (href === dashboardPathPrefix) return false
+  return pathname.startsWith(`${href}/`)
+}
 
 export function isSettingMenuPath(path: string) {
   return path === settingMenuPathPrefix || path.startsWith(`${settingMenuPathPrefix}/`)
@@ -41,7 +57,7 @@ export function getMenuIconComponent(iconName: string | null | undefined): Lucid
 export function toMenuItems(menus: MenuAccessItem[]): MenuItem[] {
   return menus.map((item) => ({
     title: item.title,
-    href: item.href,
+    href: normalizeDashboardPath(item.href),
     iconKey: item.iconKey,
   }))
 }

@@ -108,7 +108,7 @@ export default async function CarDetailPage({ params }: PageProps) {
     <div className="space-y-8">
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="space-y-4">
-          <Link href="/cars" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-700">
+          <Link href="/dashboard/cars" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-700">
             <ArrowLeft className="h-4 w-4" />
             กลับไปหน้าจัดการรถ
           </Link>

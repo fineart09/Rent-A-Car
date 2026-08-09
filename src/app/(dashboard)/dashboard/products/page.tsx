@@ -96,7 +96,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
         <form
           method="get"
-          action="/products"
+          action="/dashboard/products"
           className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 md:grid-cols-[minmax(180px,1fr)_180px_160px_auto] overflow-auto"
         >
           <div className="relative">

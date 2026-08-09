@@ -16,7 +16,7 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { TabKey } from './page'
+import { TabKey } from '@/app/dashboard/page'
 
 type MonthlyRow = {
   monthKey: string
@@ -53,7 +53,7 @@ function maxBy<T>(items: T[], getter: (item: T) => number) {
   return items.reduce((max, item) => Math.max(max, getter(item)), 0)
 }
 
-export async function StatisticsPage({ activeTab }: { activeTab: TabKey }) {
+export async function DashboardStatisticsPage({ activeTab }: { activeTab: TabKey }) {
   const now = new Date()
   const sixMonthsAgoStart = addMonths(now, -5)
   const reportWindowEnd = addMonths(now, 1)

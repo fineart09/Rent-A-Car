@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Loader2, Save } from 'lucide-react'
 import { Button, Input, Label, Textarea } from '@/components/ui'
-import { createVehicleType } from '@/app/(dashboard)/cars/vehicle-type-actions'
+import { createVehicleType } from '@/app/dashboard/cars/vehicle-type-actions'
 import { useRouter } from 'next/navigation'
 
 interface VehicleTypeFormProps {

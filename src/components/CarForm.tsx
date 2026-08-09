@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Loader2, Save } from 'lucide-react'
 import { Button, Label, Input, Textarea } from '@/components/ui'
-import { createCar } from '@/app/(dashboard)/cars/cars-actions'
+import { createCar } from '@/app/dashboard/cars/cars-actions'
 import { useRouter } from 'next/navigation'
 import { CarStatusOptions, CarStatus } from '@/lib/types'
 import CarImageUploader from '@/components/CarImageUploader'

@@ -215,7 +215,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
 
         <form
           method="get"
-          action="/bookings"
+          action="/dashboard/bookings"
           className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 md:grid-cols-3 xl:grid-cols-[200px_200px_auto_200px_200px_150px] overflow-auto"
         >
           <Select name="drivers" defaultValue={driversParam}>

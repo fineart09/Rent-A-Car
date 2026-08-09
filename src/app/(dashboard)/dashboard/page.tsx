@@ -1,6 +1,6 @@
-// import { DashboardHeaderPage } from './header'
-import { OverviewPage } from './overview'
-// import { StatisticsPage } from './statistics'
+// import { DashboardHeaderPage } from '@/components/DashboardHeaderPage'
+import { DashboardOverviewPage } from '@/components/DashboardOverviewPage'
+// import { DashboardStatisticsPage } from '@/components/DashboardStatisticsPage'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,9 +25,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       {/* <DashboardHeaderPage activeTab={activeTab} /> */}
 
-      <OverviewPage activeTab={activeTab} />
+      <DashboardOverviewPage activeTab={activeTab} />
 
-      {/* <StatisticsPage activeTab={activeTab} /> */}
+      {/* <DashboardStatisticsPage activeTab={activeTab} /> */}
 
     </div>
   )

@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma'
-import { MenuAccessItem } from '@/rbac/menus'
+import { MenuAccessItem, normalizeDashboardPath } from '@/rbac/menus'
 import { cache } from 'react'
 
 export type AuthFailureReason = 'missing-session' | 'token-expired' | 'role-denied' | 'no-access'
@@ -130,7 +130,7 @@ const getDbAccessibleMenus = cache(async (roleCodes: string[]) => {
       const roles = mappedRoles.length > 0 ? mappedRoles : fallbackRoles
       return {
         title: menu.title,
-        href: menu.path ?? '',
+        href: normalizeDashboardPath(menu.path ?? ''),
         iconKey: normalizeIconKey(menu.icon),
         sequence: menu.sequence,
         roles,

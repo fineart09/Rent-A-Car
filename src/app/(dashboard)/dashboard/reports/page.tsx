@@ -17,7 +17,7 @@ export default async function ReportsPage() {
             <div className="text-sm font-bold text-slate-500">เอกสารพิมพ์</div>
             <h2 className="mt-2 text-2xl font-extrabold text-slate-950">สัญญา / ใบเสร็จ / มัดจำ</h2>
             <p className="mt-2 text-sm font-medium text-slate-500">รวมเอกสารที่ใช้พิมพ์จริงจาก booking และ payment</p>
-            <Link href="/documents" className="mt-5 inline-flex rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white">
+            <Link href="/dashboard/documents" className="mt-5 inline-flex rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white">
               เปิดหน้าพิมพ์เอกสาร
             </Link>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -36,7 +36,7 @@ export default async function ReportsPage() {
             <div className="text-sm font-bold text-slate-500">การชำระเงิน</div>
             <h2 className="mt-2 text-2xl font-extrabold text-slate-950">ดูยอดค้างและเพิ่มการจ่ายเงิน</h2>
             <p className="mt-2 text-sm font-medium text-slate-500">ใช้ drawer สรุปรายการเพื่อบันทึกรายการรับเงินจริง</p>
-            <Link href="/payments" className="mt-5 inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">
+            <Link href="/dashboard/payments" className="mt-5 inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white">
               เปิดหน้าชำระเงิน
             </Link>
           </CardContent>

@@ -4,7 +4,7 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { TabKey } from './page'
+import { TabKey } from '@/app/dashboard/page'
 
 export function DashboardHeaderPage({ activeTab }: { activeTab: TabKey }) {
 

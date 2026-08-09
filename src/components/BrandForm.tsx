@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Loader2, Save } from 'lucide-react'
 import { Button, Input, Label, Textarea } from '@/components/ui'
-import { createBrand } from '@/app/(dashboard)/cars/brand-actions'
+import { createBrand } from '@/app/dashboard/cars/brand-actions'
 import { useRouter } from 'next/navigation'
 
 interface BrandFormProps {

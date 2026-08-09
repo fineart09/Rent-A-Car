@@ -12,7 +12,7 @@ import {
 } from '@/lib/ui-format'
 import { Card, CardContent } from '@/components/ui'
 import { cn } from '@/lib/utils'
-import { TabKey } from './page'
+import { TabKey } from '@/app/dashboard/page'
 
 type StatCardProps = {
   href?: string
@@ -46,7 +46,7 @@ export function StatCard({ href = '/dashboard', title, value, unit, icon: Icon, 
   )
 }
 
-export async function OverviewPage({ activeTab }: { activeTab: TabKey }) {
+export async function DashboardOverviewPage({ activeTab }: { activeTab: TabKey }) {
   const overviewPromise = activeTab === 'overview'
     ? Promise.all([
         prisma.car.count({ where: { isDeleted: false } }),
@@ -73,7 +73,7 @@ export async function OverviewPage({ activeTab }: { activeTab: TabKey }) {
         <>
           <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <StatCard
-              href='/cars'
+              href='/dashboard/cars'
               title="รถทั้งหมด"
               value={formatCompactNumber(overviewStats.totalCars)}
               unit=""
@@ -81,7 +81,7 @@ export async function OverviewPage({ activeTab }: { activeTab: TabKey }) {
               iconClassName="h-5 w-5 text-slate-400"
             />
             <StatCard
-              href='/driver'
+              href='/dashboard/driver'
               title="ลูกค้าทั้งหมด"
               value={formatCompactNumber(overviewStats.totalDriver)}
               unit=""
@@ -90,7 +90,7 @@ export async function OverviewPage({ activeTab }: { activeTab: TabKey }) {
               valueClassName="text-emerald-600"
             />
             <StatCard
-              href='/products'
+              href='/dashboard/products'
               title="บริการทั้งหมด"
               value={formatCompactNumber(overviewStats.totalProduct)}
               unit=""
@@ -99,7 +99,7 @@ export async function OverviewPage({ activeTab }: { activeTab: TabKey }) {
               valueClassName="text-[#4E2788]"
             />
             <StatCard
-              href='/bookings'
+              href='/dashboard/bookings'
               title="รายการทั้งหมด"
               value={formatCompactNumber(overviewStats.totalBooking)}
               unit=""

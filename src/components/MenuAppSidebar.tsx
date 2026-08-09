@@ -24,7 +24,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Car, LogOut, ChevronsUpDown, CircleUser } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getMenuIconComponent, isSettingMenuPath, type MenuItem } from "@/lib/rbac/menus";
+import { getMenuIconComponent, isMenuActive, isSettingMenuPath, type MenuItem } from "@/lib/rbac/menus";
 
 type SidebarUser = {
   name?: string | null;
@@ -60,7 +60,7 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
         <SidebarContent>
           <SidebarMenu className="flex-1 space-y-3 px-2">
             {primaryMenus.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const active = isMenuActive(pathname, item.href);
               const Icon = getMenuIconComponent(item.iconKey);
 
               return (
@@ -120,7 +120,7 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
                     {settingMenus.length > 0 ? (
                       <>
                         {settingMenus.map((item) => {
-                          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                          const active = isMenuActive(pathname, item.href);
                           const Icon = getMenuIconComponent(item.iconKey);
 
                           return (

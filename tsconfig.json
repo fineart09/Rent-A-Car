@@ -30,6 +30,9 @@
       "@/app/*": [
         "./src/app/*"
       ],
+      "@/app/dashboard/*": [
+        "./src/app/(dashboard)/dashboard/*"
+      ],
       "@/components/*": [
         "./src/components/*"
       ],

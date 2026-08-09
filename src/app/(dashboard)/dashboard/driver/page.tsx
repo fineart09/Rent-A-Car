@@ -131,7 +131,7 @@ export default async function DriverPage({ searchParams }: PageProps) {
   
         <form
           method="get"
-          action="/driver"
+          action="/dashboard/driver"
           className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 md:grid-cols-3 xl:grid-cols-[minmax(220px,1fr)_180px_160px_auto] overflow-auto"
         >
           <div className="relative">
